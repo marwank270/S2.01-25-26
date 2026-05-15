@@ -8,15 +8,21 @@ const game = new Game();
 
 document.querySelector('.game-form').addEventListener('submit', async function (event) {
   event.preventDefault();
-  // Todo À compléter
+  // Récupérer les valeurs des champs de saisie dans le formulaire
+  let pseudoInput = document.getElementById('pseudo');
+  let difficultyInput = document.getElementById('difficulty');
+  let collectionInput = document.getElementById('collection');
 
   try {
-    // Todo Spécifier les paramètres de createGame()
-    const data = await ApiService.createGame();
-    console.log('Success:', data, data.id);
-    game.startGame(data.id);
+    // Appel de createGame() avec les paramètres récupérés
+    const gameId = await ApiService.createGame(pseudoInput.value, difficultyInput.value);
+    // Afficher le succès dans la console
+    console.log('[Success] Partie créée: ' + gameId + ' pour ' + pseudoInput.value + ' difficulté: ' + difficultyInput.value + ' collection: ' + collectionInput.value);
+    game.startGame(gameId, collectionInput.value); // @todo: ajouter le paramètre collectionName à startGame
+    console.log('[Info] Démarrage de la partie: ' + gameId);
+
   } catch (error) {
-    console.error('Error:', error);
-    alert(error.message || 'Erreur lors de la création de la partie');
+    console.error('[Error]: ', error);
+    alert(error.message || '[Error]: Erreur lors de la création de la partie');
   }
 });
