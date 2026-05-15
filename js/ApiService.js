@@ -29,6 +29,7 @@ export class ApiService {
     }
 
     const data = await response.json();
+    console.log('data reçue:', data); // Log pour vérifier la structure de la réponse
     return data.id;  // Retourne directement l'idée de la partie créée
   }
 

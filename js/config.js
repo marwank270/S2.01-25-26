@@ -1,5 +1,5 @@
-//export const MEMORY_URL = 'https://memory.iuthub.fr/api/game';
-export const MEMORY_URL = 'https://cors-anywhere.herokuapp.com/https://memory.iuthub.fr/api/game';
+export const MEMORY_URL = 'https://memory.iuthub.fr/api/game';
+//export const MEMORY_URL = 'https://cors-anywhere.herokuapp.com/https://memory.iuthub.fr/api/game';
 
 
 // Ne pas utiliser
