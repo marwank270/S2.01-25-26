@@ -11,13 +11,16 @@ export class ApiService {
    * @returns {Promise<GameReturn>}
    */
   static async createGame(pseudo, difficulty) {
-    const response = await fetch(`${MEMORY_URL}/`, {
+    //const response = await fetch(`${MEMORY_URL}/`, { // Slash en trop
+    const response = await fetch(`${MEMORY_URL}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        // Todo compléter le body
+        // Body rempli
+        name: pseudo,
+        difficulty: difficulty,
       })
     });
 
@@ -25,7 +28,8 @@ export class ApiService {
       throw new Error('Erreur lors de la création de la partie');
     }
 
-    return response.json();
+    const data = await response.json();
+    return data.id;  // Retourne directement l'idée de la partie créée
   }
 
   /**
