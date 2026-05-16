@@ -15,11 +15,20 @@ document.querySelector('.game-form').addEventListener('submit', async function (
 
   try {
     // Appel de createGame() avec les paramètres récupérés
-    const gameId = await ApiService.createGame(pseudoInput.value, difficultyInput.value);
+    let gameId = await ApiService.createGame(pseudoInput.value, difficultyInput.value);
     // Afficher le succès dans la console
     console.log('[Success] Partie créée: ' + gameId + ' pour ' + pseudoInput.value + ' difficulté: ' + difficultyInput.value + ' collection: ' + collectionInput.value);
+    
     game.startGame(gameId, collectionInput.value); // @todo: ajouter le paramètre collectionName à startGame
     console.log('[Info] Démarrage de la partie: ' + gameId);
+
+    // Cacher le formulaire de configuration
+    let setupForm = document.querySelector('.setup-form');
+    setupForm.classList.add('hidden');
+
+    // Afficher le platea de la partie
+    let gameBoard = document.querySelector('.game-area');
+    gameBoard.classList.remove('hidden');
 
   } catch (error) {
     console.error('[Error]: ', error);
