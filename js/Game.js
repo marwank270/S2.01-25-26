@@ -28,11 +28,14 @@ export class Game {
   /**
    * Start a new game.
    * @param {number} id - The game ID.
+   * @param {string} collectionName - The name of the image collection to use.
    */
-  startGame(id) {
+  startGame(id, collectionName) {
     this.#id = id;
 
-    // Todo À commpléter
+    // @todo lancer le chronomètre
+    // @todo afficher les cartes (face cachées) sur le plateau de jeu
+    // @todo ajouter un bouton d'abandon
 
   }
 
