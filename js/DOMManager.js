@@ -2,27 +2,41 @@ export class DOMManager {
 
 
   /**
-   * Ajoute toutes les images d'une collection sur le gameBoard
+   * Créé les images d'une collection sur le gameBoard
    * @param {Image[]} images
    */
   createCards(images) {
     const gameBoard = document.querySelector('.game-board');
 
-    // Todo À Compléter
+    images.forEach(image => {
+      const card            = document.createElement('div');
+      card.className        = 'card';
+      card.dataset.imageId  = image.id;
 
-    /**
-     * Voici un exemple de contenu de card permettant de contenir une partie masqué
-     * et l'image qui doit être révélée.
-     *
-     <div class="card-inner">
-     <div class="card-front">
-     <img src="./assets/images/mask1.jpg" alt="Hidden card">
-     </div>
-     <div class="card-back hidden">
-     <img src="${image.url}" alt="${image.name}">
-     </div>
-     </div>
-     */
+      const cardInner     = document.createElement('div');
+      cardInner.className = 'card-inner';
 
+      const cardFront     = document.createElement('div');
+      cardFront.className = 'card-front';
+
+      const frontImg  = document.createElement('img');
+      frontImg.src    = './assets/images/mask1.jpg';
+      frontImg.alt    = 'Hidden card';
+      cardFront.appendChild(frontImg);
+
+      const cardBack      = document.createElement('div');
+      cardBack.className  = 'card-back';
+
+      const backImg = document.createElement('img');
+      backImg.src   = image.url;
+      backImg.alt   = image.name;
+      cardBack.appendChild(backImg);
+      
+      cardInner.appendChild(cardFront);
+      cardInner.appendChild(cardBack);
+
+      card.appendChild(cardInner);
+      gameBoard.appendChild(card);
+    });
   }
 }
