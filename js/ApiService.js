@@ -11,26 +11,22 @@ export class ApiService {
    * @returns {Promise<GameReturn>}
    */
   static async createGame(pseudo, difficulty) {
-    //const response = await fetch(`${MEMORY_URL}/`, { // Slash en trop
-    const response = await fetch(`${MEMORY_URL}`, {
+
+    const reponse = await fetch(`${MEMORY_URL}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        // Body rempli
-        name: pseudo,
-        difficulty: difficulty,
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: pseudo.toString(), difficulty: parseInt(difficulty) })
     });
 
-    if (!response.ok) {
+    // Vérifier la réponse du serveur
+    if (!reponse.ok) {
+      // Lancer une erreur si ce n'est pas bon
       throw new Error('Erreur lors de la création de la partie');
     }
 
-    const data = await response.json();
-    console.log('data reçue:', data); // Log pour vérifier la structure de la réponse
-    return data.id;  // Retourne directement l'idée de la partie créée
+    // Extraire les données de la réponse, retourner l'identifiant de la partie attribué par le serveur
+    let d = await reponse.json();
+    return d.id;
   }
 
   /**
@@ -42,15 +38,13 @@ export class ApiService {
   static async updateGameResult(gameId, pairsRemaining) {
     const response = await fetch(`${MEMORY_URL}/${gameId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        nombreCoupsRestant: pairsRemaining,
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombreCoupsRestant: pairsRemaining })
     });
 
+    // Vérifier la réponse 
     if (!response.ok) {
+      // Gérer l'erreur
       throw new Error('Erreur lors de la mise à jour du score');
     }
 
