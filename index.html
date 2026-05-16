@@ -11,6 +11,15 @@
         <h1>Jeu de Memory</h1>
     </header>
 
+    <div class="game-area hidden">
+      <div class="game-area-header">
+        <div class="game-timer"></div>
+        <button id="abandon">Abandonner la partie</button>
+      </div>
+      <div class="game-board">
+      </div>
+    </div>
+    
     <div class="setup-form">
       <h2>Démarrer une nouvelle partie</h2>
 
@@ -35,24 +44,16 @@
 
         <label for="collection">Collection d'images:</label>
         <select id="collection" name="collection" required>
-          <option value="animaux">Animaux</option>
-          <option value="nature">Nature</option>
+          <option value="animals">Animaux</option>
+          <option value="cars">Voitures</option>
           <option value="fruits">Fruits</option>
-          <option value="emoji">Emoji</option>
+          <!-- Ajouter d'autres collections -->
         </select>
 
         <button type="submit">Démarrer la partie</button>
       </form>
     </div>
 
-    <div class="game-area hidden">
-      <div class="game-area-header">
-        <div class="game-timer">00:00</div>
-      </div>
-      <div class="game-board">
-        
-      </div>
-    </div>
     <script src="js/app.js" type="module"></script>
   </body>
 </html>
