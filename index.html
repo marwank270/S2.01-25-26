@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jeu de Memory</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="js/app.js" type="module"></script>
   </head>
   <body>
     <header>
@@ -28,10 +27,10 @@
 
         <label for="difficulty">Difficulté:</label>
         <select id="difficulty" name="difficulty" required>
-          <option value="facile">4 paires</option>
-          <option value="moyen">5 paires</option>
-          <option value="difficile">6 paires</option>
-          <option value="difficile2">8 paires</option>
+          <option value="4">4 paires</option>
+          <option value="5">5 paires</option>
+          <option value="6">6 paires</option>
+          <option value="8">8 paires</option>
         </select>
 
         <label for="collection">Collection d'images:</label>
@@ -50,5 +49,6 @@
       <div class="game-area-header"></div>
       <div class="game-board"></div>
     </div>
+    <script src="js/app.js" type="module"></script>
   </body>
 </html>
