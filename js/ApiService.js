@@ -36,7 +36,8 @@ export class ApiService {
    * @returns {Promise<any>}
    */
   static async updateGameResult(gameId, pairsRemaining) {
-    const response = await fetch(`${MEMORY_URL}/${gameId}`, {
+    const response = await fetch(`${MEMORY_URL}/${gameId}`, 
+    {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nombreCoupsRestant: pairsRemaining })
