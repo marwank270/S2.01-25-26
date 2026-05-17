@@ -252,3 +252,51 @@ header h1 {
   object-fit: cover;
   border-radius: 0.5rem;
 }
+
+/* ── Win popup ── */
+.win-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.win-content {
+  background-color: var(--color-bg-panel);
+  color: var(--color-text-label);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  max-width: 30rem;
+}
+
+.win-content h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  margin-bottom: 1.5rem;
+}
+
+.win-content button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-top: 1.5rem;
+  background-color: var(--color-btn-primary);
+  color: var(--color-text-white);
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.win-content button:hover {
+  background-color: var(--color-btn-primary-hover);
+}

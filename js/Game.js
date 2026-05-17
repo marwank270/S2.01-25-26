@@ -2,6 +2,7 @@ import {imageCollections} from './ImageCollection.js';
 import {ApiService} from './ApiService.js';
 import {DOMManager} from './DOMManager.js';
 
+// Initialise une instance de DOMManager pour centraliser les interactions avec le DOM
 const domManager = new DOMManager();
 
 export class Game {
@@ -9,7 +10,7 @@ export class Game {
    * @type {number} id - identifiant de la partie en cours
    * @type {number} timerId - identifiant du timer de la partie en cours (pour pouvoir l'arrêter)
    * @type {number} elapsedTime - temps écoulé en centièmes de seconde
-   * @type {Array} flipped - cartes actuellement retournées
+   * @type {Array} flipped - tableau temporaire des 9cartes actuellement retournées
    * @type {number} matchedPairs - nombre de paires trouvées
    * @type {number} totalPairs - nombre total de paires
    */
@@ -20,14 +21,14 @@ export class Game {
   #matchedPairs = 0;
   #totalPairs = 0;
 
-  
+  /**
+   * Gère la fin de partie en envoyant les résultats au serveur et en préparant le DOM pour une nouvelle partie
+   */
   async endGame() {
-    // Todo À compléter
-
-
     const idARemplacer                      = this.#id;
     const nombreDePairesRestanteARemplacer  = this.#totalPairs - this.#matchedPairs;
 
+    // Envoi de l'objet JSON contenant l'id de la partie et le nombre de paires restantes
     try {
       const result = await ApiService.updateGameResult(idARemplacer, nombreDePairesRestanteARemplacer);
       console.log('Fin de partie:', result);
@@ -36,12 +37,30 @@ export class Game {
       alert(error.message || 'Erreur lors de la fin de la partie');
     }
 
+    // Préparer le DOM pour une nouvelle partie
+    // Attendre 500ms que la carte finisse de se retourner
+    setTimeout(() => {/*fonction vide pour laisser le temps passer*/}, 500);
+
+    // Afficher les stats de la partie gagnée ou abandonnée dans la popup de fin de partie
+    this.showGameStats();
+
+    // Afficher le setup-form et cacher la game-area et le bouton d'abandon
+    domManager.showDOMElement('.setup-form');
+    domManager.hideDOMElement('.game-area');
+    domManager.hideDOMElement('#abandon');
+    //document.querySelector('.setup-form').classList.remove('hidden');
+    //document.querySelector('#abandon').classList.add('hidden');
+
+    // Reset le plateau de jeu en supprimant toutes les cartes du DOM
+    domManager.clearDOMElement('.game-board');
+
   }
 
   /**
    * Démarre une nouvelle partie.
-   * @param {number} id - L'identifiant de la parti'.
-   * @param {string} collectionName - le nom  de la collection à utiliser.
+   * @param {number} id - L'identifiant de la partie.
+   * @param {keyof ImagesCollection} collectionName - le nom  de la collection à utiliser.
+   * @note `@param collectionName` "keyof" séléctionne automatiquement les clés (Collection) valides de la collection.
    */
   startGame(id, collectionName) {
     this.#id            = id;
@@ -50,8 +69,10 @@ export class Game {
     this.#matchedPairs  = 0;
     this.startTimer();
 
-    console.log('[Info] Création des cartes pour la collection: ' + collectionName);
+    // Utiliser la clée correspondante à la collection d'images à créer
     const images = imageCollections[collectionName];
+    console.log('[Info] Création des cartes pour la collection: ' + collectionName);
+    // Dupliquer et mélanger les images pour créer les paires
     const pairs = [...images, ...images].sort(() => Math.random() - 0.5);
     this.#totalPairs = images.length;
 
@@ -60,31 +81,62 @@ export class Game {
   }
 
   /**
-   * Attends l'interaction de l'utilisateur sur les cartes et appelle la fontion de "retournement"
+   * Gère l'abandon de la partie en cours
    */
-  addCardListeners() {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach((card, index) => {
-      card.addEventListener('click', () => this.handleCardClick(card, index));
-    });
+  abandonGame() {
+    // Appelle l'arrêt du timer et la fin de partie en cas d'abandon
+    this.stopTimer();
+    console.log('[Info] Partie abandonnée: ' + this.#id + ' paires restantes: ' + (this.#totalPairs - this.#matchedPairs) + '/' + this.#totalPairs + ' temps écoulé: ' + this.#elapsedTime);
+    this.endGame();
+  }
+
+  /**
+   * Vérifie les conditions de victoire et affiche les stats avant la fin de partie
+   */
+  checkWin() {
+    if (this.#matchedPairs === this.#totalPairs) {
+      this.stopTimer();
+      // Affichage de les stats
+      setTimeout(() => this.showGameStats(), 700);
+      this.endGame();
+      console.log('[Info] Partie gagnée: ' + this.#id);
+    }
   }
 
   /**
    * Gère le clic et le "retournement" d'une carte avant de les comparer
-   * @param {HTMLDivElement} card 
-   * @param {number} index 
+   * @param {HTMLDivElement} card - élément de la carte sélectionnée
+   * @param {number} index - index de la carte sélectionnée
    */
   handleCardClick(card, index) {
-    if (card.classList.contains('flip') || card.classList.contains('matched')) return;
+    // Ignorer les cartes déjà retournées ou trouvés
+    //if (card.classList.contains('flip') || card.classList.contains('matched')) return; 
+    if (domManager.hasDOMClass(card, 'flip') || domManager.hasDOMClass(card, 'matched')) return;
+    // Attendre qu'au moins 2 cartes soient retournées avant d'en retourner une autre
     if (this.#flipped.length >= 2) return;
 
-    card.classList.add('flip');
+    // Retourner la carte sélectionnée et l'ajouter à la liste des cartes visibles
+    //card.classList.add('flip');
+    domManager.addDOMClass(card, 'flip');
     this.#flipped.push({ card, index });
 
     if (this.#flipped.length === 2) {
       // Vérifier les paire quand 2 cartes sont visibles
       this.checkMatch();
     }
+  }
+
+  /**
+   * Attends l'interaction de l'utilisateur sur les cartes et appelle la fontion de "retournement"
+   */
+  addCardListeners() {
+    // Pour tout éléments qui a la classe "card"
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+    //  card.addEventListener('click', () => this.handleCardClick(card, index));
+      // Utiliser le DOMManager pour ajouter un écouteur de click à chaque carte (tous les enfants de .card)
+      domManager.addClickListener(`.card:nth-child(${index + 1})`, () => this.handleCardClick(card, index));
+    });
   }
 
   /**
@@ -97,15 +149,18 @@ export class Game {
 
     if (firstId === secondId) {
       // Marquer la paire visible comme trouvée
-      first.card.classList.add('matched');
-      second.card.classList.add('matched');
+      //first.card.classList.add('matched');
+      //second.card.classList.add('matched');
+      domManager.addDOMClass(first.card, 'matched');
+      domManager.addDOMClass(second.card, 'matched');
+
       // Incrémenter le nombre de paires trouvées et reset les cartes retournées
       this.#matchedPairs++;
       this.#flipped = [];
       // Vérifier la victoire
       this.checkWin();
     } else {
-      // Reset les cartes après 1s 
+      // Recacher les cartes après 1s 
       setTimeout(() => this.resetCards(), 1000);
     }
   }
@@ -115,31 +170,55 @@ export class Game {
    */
   resetCards() {
     this.#flipped.forEach(({ card }) => {
-      card.classList.remove('flip');
+      //card.classList.remove('flip');
+      domManager.removeDOMClass(card, 'flip');
     });
     this.#flipped = [];
   }
 
+
   /**
-   * Vérifie les conditions de victoire et affiche une alerte avant la fin de partie
+   * Update les stats pour la popup de fin de partie
    */
-  checkWin() {
-    if (this.#matchedPairs === this.#totalPairs) {
-      this.stopTimer();
-      // Laisser le temps à la carte de se retourner
-      setTimeout(() => alert('Bravo! Vous avez gagné!'), 700);
-      
-      //this.endGame();
+  showGameStats() {
+    const min = Math.floor(this.#elapsedTime / 600);
+    const sec = Math.floor((this.#elapsedTime % 600) / 10);
+    const dix = this.#elapsedTime % 10;
+    const minStr = min < 10 ? `0${min}` : `${min}`;
+    const secStr = sec < 10 ? `0${sec}` : `${sec}`;
+
+    // @todo temps pas affiché 
+    // @todo changer la couleur du texte
+    if (this.#matchedPairs !== this.#totalPairs) {
+      domManager.updateDOMText('#win-title', 'Vous avez perdu !');
+    } else {
+      domManager.updateDOMText('#win-title', 'Vous avez gagné !');
     }
+    // Rmplacer les valeurs par défaut de la popup par les stats dynamique de la partie gagnée
+    //document.querySelector('#pairs-count').textContent = `${this.#matchedPairs}/${this.#totalPairs}`;
+    domManager.updateDOMText('#pairs-count', `${this.#matchedPairs}/${this.#totalPairs}`);
+    //document.querySelector('#time-count').textContent = `${minStr}:${secStr}.${dix}`;
+    domManager.updateDOMText('#time-count', `${minStr}:${secStr}.${dix}`);
+
+    // Afficher la popup de fin de partie
+    //document.querySelector('#win-box').classList.remove('hidden');
+    domManager.showDOMElement('#win-box');
+
+    //document.querySelector('#btn-new-game').onclick = () => {
+    domManager.addClickListener('#btn-new-game', () => {
+      //document.querySelector('#win-box').classList.add('hidden');
+      domManager.hideDOMElement('#win-box');
+    });
   }
+
 
   /**
    * Démarre un minuteur qui s'actualise toutes les 100ms et affiche le temps écoulé sur la page
    */
   startTimer() {
-    const timer = document.querySelector('.game-timer');
+    //const timer = document.querySelector('.game-timer');
 
-    // @note utiliser hors prod car unsafe d'après les chad de chez mozzila
+    // @note "setInterval" à utiliser hors prod car unsafe d'après les chad de chez mozzilla
     // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval
     this.#timerId = setInterval(() => {
       this.#elapsedTime++;
@@ -149,16 +228,16 @@ export class Game {
       const minStr  = min < 10 ? `0${min}` : `${min}`;
       const secStr  = sec < 10 ? `0${sec}` : `${sec}`;
       // Update le timer sur la page
-      timer.textContent = `${minStr}:${secStr}.${dix}`;
+      //timer.textContent = `${minStr}:${secStr}.${dix}`;
+      domManager.updateDOMText('.game-timer', `${minStr}:${secStr}.${dix}`);
     }, 100);
   }
 
   /**
-   * Arrête le minuteur et reset le temps écoulé
+   * Arrête le chonomètre
    */
   stopTimer() {
     clearInterval(this.#timerId);
-    this.#elapsedTime = 0;
   }
 
 }
