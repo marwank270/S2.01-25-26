@@ -19,13 +19,28 @@
   - Affiche les stats de la partie (temps, nombre de paires trouvées / nombre total de paires)
   - Affiche un message de victoire si toutes les paires sont trouvés ou un message de défaite sinon
   - Propose un bouton pour recommencer une nouvelle partie
-- [ ] "Shuffle mode"
+- [ ] "Speedrun mode", pour les joueurs qui veulent se challenger
+  - Réduit le temps de toutes les animations et délais à 20% de leur durée normale
+  - Propose menu déroulant différents minuteurs à battre (ex: 3mn, 2mn, 1mn, 30s, 15s)
+    - Affiche un message de victoire si le temps est battu ou un message de défaite si le temps est imparti es atteint
+    - Enregistre le meilleur temps du joueur dans le localStorage
+    - Permet de débloquer et d'afficher fièrement un badge de "speedrunner" si le temps de 30s est battu
+  - Propose une checkbox pour activer ou désactiver le mode speedrun au setup de la partie
+- [ ] "Shuffle mode", un cran de difficulté supplémentaire
   - Mélange les cartes à chaque fois qu'une paire trouvée
   - Propose une checkbox pour activer ou désactiver le mode shuffle au setup de la partie
 - [ ] "Memory démineur"
   - Propose une paire de carte "bombe" qui fait perdre la partie si la paire est retournée
   - Propose une checkbox pour activer ou désactiver le mode démineur au setup de la partie
   - Affiche une animation de bombe qui explose si la paire de carte "bombe" est retournée
+- [ ] "Effets sonores" pour agrémenter l'expérience de jeu
+  - Ajoute des effets sonores pour les actions suivantes :
+    - Retourner une carte
+    - Trouver une paire
+    - Ne pas trouver une paire
+    - Gagner la partie
+    - Perdre la partie
+  - Propose une checkbox pour activer ou désactiver les effets sonores au setup de la partie (activé par défaut)
 
 ## Problèmes rencontrés
 
