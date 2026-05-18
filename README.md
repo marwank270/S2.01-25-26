@@ -1,11 +1,11 @@
 # SAÉ 2.01 - Développement d'une application
 
-## Membres de l'équipe
+## Membres de l'équipe - Groupe S2
 
-- Marwan K. - [Github](https://github.com/marwank270) - [Mail étudiant](mailto:marwan.kaouachi@etu.u-paris.fr)
-- Noa H.-B. Z. - [Mail étudiant](mailto:noa.hoss-ben-zekri@etu.u-paris.fr) - **N'a, à ce jour pas participé au projet**
-- Rayane E. - [Mail étudiant](mailto:rayane.embarek@etu.u-paris.fr) - **N'a, à ce jour pas participé au projet**
-- Selim K. - [Mail étudiant](mailto:selim.kefi@etu.u-paris.fr) - **N'a, à ce jour pas participé au projet**
+- Marwan K. - 108
+- Noa H.-B. Z. - 108 - **N'a, à ce jour pas participé au projet**
+- Rayane E. - 108 - **N'a, à ce jour pas participé au projet**
+- Selim K. - 108 - **N'a, à ce jour pas participé au projet**
 
 ## Description du projet
 
@@ -26,21 +26,21 @@
     - Enregistre le meilleur temps du joueur dans le localStorage
     - Permet de débloquer et d'afficher fièrement un badge de "speedrunner" si le temps de 30s est battu
   - Propose une checkbox pour activer ou désactiver le mode speedrun au setup de la partie
-- [ ] "Shuffle mode", un cran de difficulté supplémentaire
-  - Mélange les cartes à chaque fois qu'une paire trouvée
-  - Propose une checkbox pour activer ou désactiver le mode shuffle au setup de la partie
+- ~~[ ] "Shuffle mode", un cran de difficulté supplémentaire~~
+  - ~~Mélange les cartes à chaque fois qu'une paire trouvée~~
+  - ~~Propose une checkbox pour activer ou désactiver le mode shuffle au setup de la partie~~ 
+  *Idée abandonnée car elle rendrai le jeu trop aléatoire et potentiellement frustrant. Surtout, contraire au principe du memory de base.*
 - [ ] "Memory démineur"
   - Propose une paire de carte "bombe" qui fait perdre la partie si la paire est retournée
   - Propose une checkbox pour activer ou désactiver le mode démineur au setup de la partie
   - Affiche une animation de bombe qui explose si la paire de carte "bombe" est retournée
-- [ ] "Effets sonores" pour agrémenter l'expérience de jeu
+- [x] "Effets sonores" pour agrémenter l'expérience de jeu
   - Ajoute des effets sonores pour les actions suivantes :
-    - Retourner une carte
-    - Trouver une paire
-    - Ne pas trouver une paire
-    - Gagner la partie
-    - Perdre la partie
-  - Propose une checkbox pour activer ou désactiver les effets sonores au setup de la partie (activé par défaut)
+    - [x] Retourner une carte (`./assets/sounds/flip.mp3`)
+    - [x] Trouver une paire (`./assets/sounds/match.mp3`)
+    - [x] Gagner la partie (`./assets/sounds/win.mp3`)
+    - [x] Perdre la partie (`./assets/sounds/game-over.mp3`)
+  - [x] Propose une checkbox pour activer ou désactiver les effets sonores au setup de la partie (activé par défaut)
 
 ## Problèmes rencontrés
 
