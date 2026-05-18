@@ -9,6 +9,7 @@ export class DOMManager {
    * @returns {HTMLElement}
    */
   resolveElement(elt) {
+    // console.log('Resolving element:', elt);
     if (typeof elt === 'string') {
       return document.querySelector(elt);
     }
@@ -62,7 +63,7 @@ export class DOMManager {
   /**
    * Créé un élément du DOM 
    * @param {string} tag - nom de la balise HTML de l'élément à créer
-   * @returns {HTMLElement} l'élément HTLM du DOM créé
+   * @returns {HTMLElement} - l'élément HTLM du DOM créé
    */
   createDOMElement(tag) {
     return document.createElement(tag);
@@ -80,36 +81,7 @@ export class DOMManager {
 
     // Remplir le formulaire de configuration
     const form = this.resolveElement('.game-form');
-
-    /*
-    <label for="pseudo" hint="(3-20 caractères)">Nom d'utilisateur:</label>
-    <input
-      type="text"
-      id="pseudo"
-      name="pseudo"
-      required
-      minlength="3"
-      maxlength="20"
-    />
-
-    <label for="difficulty">Difficulté:</label>
-    <select id="difficulty" name="difficulty" required>
-      <option value="4">4 paires</option>
-      <option value="5">5 paires</option>
-      <option value="6">6 paires</option>
-      <option value="8">8 paires</option>
-    </select>
-
-    <label for="collection">Collection d'images:</label>
-    <select id="collection" name="collection" required>
-      <option value="animals">Animaux</option>
-      <option value="cars">Voitures</option>
-      <option value="fruits">Fruits</option>
-      <!-- Ajouter d'autres collections -->
-    </select>
-
-    <button type="submit">Démarrer la partie</button> 
-    */
+    form.appendChild(title);
 
     // Créer le label et l'input pour le pseudo
     const pseudoLabel = this.createDOMElement('label');
@@ -169,7 +141,7 @@ export class DOMManager {
     });
     form.appendChild(collectionSelect);
 
-    // Div contenant les checkbox et leurs labels
+    // Créer la div contenant les checkbox et leurs labels
     const checkBoxContainer = this.createDOMElement('div');
     checkBoxContainer.className = 'checkbox-container';
     form.appendChild(checkBoxContainer);
@@ -191,6 +163,33 @@ export class DOMManager {
     submitButton.type = 'submit';
     this.updateDOMText(submitButton, 'Démarrer la partie');
     form.appendChild(submitButton);
+  }
+  
+  /**
+   * Créé les tags audio HTML pour lire les sons 
+   */
+  createAudioElements() {
+    const soundContainer = this.resolveElement('.sound-container');
+    
+    const flipSound = this.createDOMElement('audio');
+    flipSound.src = './assets/sounds/flip.mp3';
+    flipSound.preload = 'auto';
+    soundContainer.appendChild(flipSound);
+
+    const matchSound = this.createDOMElement('audio');
+    matchSound.src = './assets/sounds/match.mp3';
+    matchSound.preload = 'auto';
+    soundContainer.appendChild(matchSound);
+    
+    const winSound = this.createDOMElement('audio');
+    winSound.src = './assets/sounds/win.mp3';
+    winSound.preload = 'auto';
+    soundContainer.appendChild(winSound);
+
+    const gameOverSound = this.createDOMElement('audio');
+    gameOverSound.src = './assets/sounds/game-over.mp3';
+    gameOverSound.preload = 'auto';
+    soundContainer.appendChild(gameOverSound);
   }
 
   /**

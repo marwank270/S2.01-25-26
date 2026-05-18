@@ -1,9 +1,12 @@
 import {imageCollections} from './ImageCollection.js';
 import {ApiService} from './ApiService.js';
 import {DOMManager} from './DOMManager.js';
+import {SoundManager} from './SoundManager.js';
 
 // Initialise une instance de DOMManager pour centraliser les interactions avec le DOM
 const domManager = new DOMManager();
+// Initialise une instance de SoundManager pour gérer les effets sonores du jeu
+const soundManager = new SoundManager();
 
 export class Game {
   /**
@@ -20,6 +23,10 @@ export class Game {
   #flipped = [];
   #matchedPairs = 0;
   #totalPairs = 0;
+  #features = {
+    sound: false, // Activer les effets sonores par défaut
+    // Autres fonctionnalités à ajouter plus tard...
+  }
 
   /**
    * Gère la fin de partie en envoyant les résultats au serveur et en préparant le DOM pour une nouvelle partie
@@ -65,17 +72,30 @@ export class Game {
     this.#elapsedTime   = 0;
     this.#flipped       = [];
     this.#matchedPairs  = 0;
-    this.startTimer();
+    this.#features      = {
+      sound: domManager.resolveElement('#sounds').checked, // Récupérer la valeur de la checkbox pour les effets sonores
+      // Autre fonctionnalités à ajouter plus tard...
+    }
 
+    // Activer ou désactiver les effets sonores en fonction de la valeur de la checkbox
+    soundManager.toggleSound(this.#features.sound);
+
+    // Afficher le plateau de jeu et le bouton d'abandon
+    domManager.showDOMElement('.game-area');
+    domManager.showDOMElement('#abandon');
+    
     // Utiliser la clée correspondante à la collection d'images à créer
     const images = imageCollections[collectionName];
     console.log('[Info] Création des cartes pour la collection: ' + collectionName);
     // Dupliquer et mélanger les images pour créer les paires
     const pairs = [...images, ...images].sort(() => Math.random() - 0.5);
     this.#totalPairs = images.length;
-
+    
     domManager.createCards(pairs);
     this.addCardListeners();
+
+    // Démarrer le chronomètre une fois les cartes affichées
+    this.startTimer();
   }
 
   /**
@@ -115,6 +135,8 @@ export class Game {
     // Retourner la carte sélectionnée et l'ajouter à la liste des cartes visibles
     domManager.addDOMClass(card, 'flip');
     this.#flipped.push({ card, index });
+    // Jouer le son de retournement
+    soundManager.playSound('flip');
 
     if (this.#flipped.length === 2) {
       // Vérifier les paire quand 2 cartes sont visibles
@@ -146,6 +168,9 @@ export class Game {
       // Marquer la paire visible comme trouvée
       domManager.addDOMClass(first.card, 'matched');
       domManager.addDOMClass(second.card, 'matched');
+
+      // Jouer le son de correspondance
+      soundManager.playSound('match');
 
       // Incrémenter le nombre de paires trouvées et reset les cartes retournées
       this.#matchedPairs++;
@@ -180,23 +205,27 @@ export class Game {
     const minStr = min < 10 ? `0${min}` : `${min}`;
     const secStr = sec < 10 ? `0${sec}` : `${sec}`;
 
-    if (this.#matchedPairs !== this.#totalPairs) {
-      domManager.updateDOMText('#win-title', 'Vous avez perdu !');
-    } else {
-      domManager.updateDOMText('#win-title', 'Vous avez gagné !');
-    }
     // Rmplacer les valeurs par défaut de la popup par les stats de la partie qui vient de se terminer
     domManager.updateDOMText('#pairs-count', `${this.#matchedPairs}/${this.#totalPairs}`);
     domManager.updateDOMText('#time-count', `${minStr}:${secStr}.${dix}`); // Afficher le temps écoulé au format mm:ss.dixièmes
 
     // Afficher la popup de fin de partie
     domManager.showDOMElement('#win-box');
+    
+    if (this.#matchedPairs !== this.#totalPairs) {
+      domManager.updateDOMText('#win-title', 'Vous avez perdu !');
+      // Jouer le son de défaite
+      soundManager.playSound('game_over');
+    } else {
+      domManager.updateDOMText('#win-title', 'Vous avez gagné !');
+      // Jouer le son de victoire (déplacé après la mise à jour du titre pour éviter les problèmes de timing avec un son dupliqué)
+      soundManager.playSound('win');
+    }
 
     // Cacher la popup au click puis afficher le setup-form pour une nouvelle partie
     domManager.addClickListener('#btn-new-game', () => {
       domManager.hideDOMElement('#win-box');
       domManager.showDOMElement('.setup-form');
-
     });
   }
 
