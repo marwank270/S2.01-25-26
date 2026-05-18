@@ -45,13 +45,11 @@ export class Game {
     this.showGameStats();
 
     // Afficher le setup-form et cacher la game-area et le bouton d'abandon
-    domManager.showDOMElement('.setup-form');
+    //domManager.showDOMElement('.setup-form'); // Déplacé dans showGameStats() pour la consistance
     domManager.hideDOMElement('.game-area');
     domManager.hideDOMElement('#abandon');
-    //document.querySelector('.setup-form').classList.remove('hidden');
-    //document.querySelector('#abandon').classList.add('hidden');
 
-    // Reset le plateau de jeu en supprimant toutes les cartes du DOM
+    // Reset le plateau de jeu en supprimant toutes les précédentes cartes du DOM
     domManager.clearDOMElement('.game-board');
 
   }
@@ -110,13 +108,11 @@ export class Game {
    */
   handleCardClick(card, index) {
     // Ignorer les cartes déjà retournées ou trouvés
-    //if (card.classList.contains('flip') || card.classList.contains('matched')) return; 
     if (domManager.hasDOMClass(card, 'flip') || domManager.hasDOMClass(card, 'matched')) return;
     // Attendre qu'au moins 2 cartes soient retournées avant d'en retourner une autre
     if (this.#flipped.length >= 2) return;
 
     // Retourner la carte sélectionnée et l'ajouter à la liste des cartes visibles
-    //card.classList.add('flip');
     domManager.addDOMClass(card, 'flip');
     this.#flipped.push({ card, index });
 
@@ -133,8 +129,7 @@ export class Game {
     // Pour tout éléments qui a la classe "card"
     const cards = document.querySelectorAll('.card');
     cards.forEach((card, index) => {
-    //  card.addEventListener('click', () => this.handleCardClick(card, index));
-      // Utiliser le DOMManager pour ajouter un écouteur de click à chaque carte (tous les enfants de .card)
+      // Utiliser le DOMManager pour ajouter un écouteur de click à chaque cartes (tous les enfants des éléments de la classe .card)
       domManager.addClickListener(`.card:nth-child(${index + 1})`, () => this.handleCardClick(card, index));
     });
   }
@@ -149,8 +144,6 @@ export class Game {
 
     if (firstId === secondId) {
       // Marquer la paire visible comme trouvée
-      //first.card.classList.add('matched');
-      //second.card.classList.add('matched');
       domManager.addDOMClass(first.card, 'matched');
       domManager.addDOMClass(second.card, 'matched');
 
@@ -170,7 +163,6 @@ export class Game {
    */
   resetCards() {
     this.#flipped.forEach(({ card }) => {
-      //card.classList.remove('flip');
       domManager.removeDOMClass(card, 'flip');
     });
     this.#flipped = [];
@@ -181,33 +173,30 @@ export class Game {
    * Update les stats pour la popup de fin de partie
    */
   showGameStats() {
+    // Format du temps écoulé mm:ss
     const min = Math.floor(this.#elapsedTime / 600);
     const sec = Math.floor((this.#elapsedTime % 600) / 10);
     const dix = this.#elapsedTime % 10;
     const minStr = min < 10 ? `0${min}` : `${min}`;
     const secStr = sec < 10 ? `0${sec}` : `${sec}`;
 
-    // @todo temps pas affiché 
-    // @todo changer la couleur du texte
     if (this.#matchedPairs !== this.#totalPairs) {
       domManager.updateDOMText('#win-title', 'Vous avez perdu !');
     } else {
       domManager.updateDOMText('#win-title', 'Vous avez gagné !');
     }
-    // Rmplacer les valeurs par défaut de la popup par les stats dynamique de la partie gagnée
-    //document.querySelector('#pairs-count').textContent = `${this.#matchedPairs}/${this.#totalPairs}`;
+    // Rmplacer les valeurs par défaut de la popup par les stats de la partie qui vient de se terminer
     domManager.updateDOMText('#pairs-count', `${this.#matchedPairs}/${this.#totalPairs}`);
-    //document.querySelector('#time-count').textContent = `${minStr}:${secStr}.${dix}`;
-    domManager.updateDOMText('#time-count', `${minStr}:${secStr}.${dix}`);
+    domManager.updateDOMText('#time-count', `${minStr}:${secStr}.${dix}`); // Afficher le temps écoulé au format mm:ss.dixièmes
 
     // Afficher la popup de fin de partie
-    //document.querySelector('#win-box').classList.remove('hidden');
     domManager.showDOMElement('#win-box');
 
-    //document.querySelector('#btn-new-game').onclick = () => {
+    // Cacher la popup au click puis afficher le setup-form pour une nouvelle partie
     domManager.addClickListener('#btn-new-game', () => {
-      //document.querySelector('#win-box').classList.add('hidden');
       domManager.hideDOMElement('#win-box');
+      domManager.showDOMElement('.setup-form');
+
     });
   }
 
@@ -216,19 +205,17 @@ export class Game {
    * Démarre un minuteur qui s'actualise toutes les 100ms et affiche le temps écoulé sur la page
    */
   startTimer() {
-    //const timer = document.querySelector('.game-timer');
-
     // @note "setInterval" à utiliser hors prod car unsafe d'après les chad de chez mozzilla
     // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval
     this.#timerId = setInterval(() => {
       this.#elapsedTime++;
+      // Format du temps écoulé mm:ss
       const min     = Math.floor(this.#elapsedTime / 600);
       const sec     = Math.floor((this.#elapsedTime % 600) / 10);
       const dix     = this.#elapsedTime % 10;
       const minStr  = min < 10 ? `0${min}` : `${min}`;
       const secStr  = sec < 10 ? `0${sec}` : `${sec}`;
       // Update le timer sur la page
-      //timer.textContent = `${minStr}:${secStr}.${dix}`;
       domManager.updateDOMText('.game-timer', `${minStr}:${secStr}.${dix}`);
     }, 100);
   }
