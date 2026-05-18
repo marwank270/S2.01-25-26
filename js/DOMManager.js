@@ -15,47 +15,7 @@ export class DOMManager {
 
     return elt;
   }
-
-  /**
-   * Créé les images d'une collection sur le gameBoard
-   * @param {Image[]} collection - la collection d'images à utiliser pour créer les cartes
-   */
-  createCards(collection) {
-    const gameBoard = document.querySelector('.game-board');
-
-    // Créer lees cartes avec des <div class="card" >  
-    collection.forEach(image => {
-      const card            = document.createElement('div');
-      card.className        = 'card';
-      card.dataset.imageId  = image.id;
-
-      const cardInner     = document.createElement('div');
-      cardInner.className = 'card-inner';
-
-      const cardFront     = document.createElement('div');
-      cardFront.className = 'card-front';
-
-      const frontImg  = document.createElement('img');
-      frontImg.src    = './assets/images/mask1.jpg';
-      frontImg.alt    = 'Hidden card';
-      cardFront.appendChild(frontImg);
-
-      const cardBack      = document.createElement('div');
-      cardBack.className  = 'card-back';
-
-      const backImg = document.createElement('img');
-      backImg.src   = image.url;
-      backImg.alt   = image.name;
-      cardBack.appendChild(backImg);
-      
-      cardInner.appendChild(cardFront);
-      cardInner.appendChild(cardBack);
-
-      card.appendChild(cardInner);
-      gameBoard.appendChild(card);
-    });
-  }
-
+  
   /**
    * Cacher un élément du DOM en lui ajoutant spécifiquement la classe "hidden"
    * @param {HTMLElement} elt - l'élément du DOM à résoudre à cacher
@@ -100,16 +60,75 @@ export class DOMManager {
   }
 
   /**
-   * Supprime tous les enfants d'un élément du DOM
-   * @param {HTMLElement} elt - l'élément du DOM à résoudre à clear
+   * Créé un élément du DOM 
+   * @param {string} tag - nom de la balise HTML de l'élément à créer
+   * @returns {HTMLElement} l'élément HTLM du DOM créé
    */
-  clearDOMElement(elt) {
-    const element = this.resolveElement(elt);
-    element.innerHTML = '';
+  createDOMElement(tag) {
+    return document.createElement(tag);
   }
 
-  //// Méthodes génériques ////
+  /**
+   * Créé et affiche le formulaire de configuration de la partie
+   */
+  createSetupForm() {
 
+  }
+  
+  /**
+   * Supprime tous les enfants d'un élément du DOM
+   * @param {HTMLElement} elt - l'élément du DOM à résoudre à clear
+  */
+  clearDOMElement(elt) {
+   const element = this.resolveElement(elt);
+   element.innerHTML = '';
+  }
+
+  /**
+   * Créé les images d'une collection sur le gameBoard
+   * @param {Image[]} collection - la collection d'images à utiliser pour créer les cartes
+   */
+  createCards(collection) {
+    const gameBoard = this.resolveElement('.game-board');
+
+    // Créer lees cartes avec des <div class="card" data-image-id="..."> pour contenir les images et les informations de chaque carte
+    collection.forEach(image => {
+      const card            = this.createDOMElement('div');
+      card.className        = 'card';
+      card.dataset.imageId  = image.id;
+
+      const cardInner     = this.createDOMElement('div');
+      cardInner.className = 'card-inner';
+
+      const cardFront     = this.createDOMElement('div');
+      cardFront.className = 'card-front';
+
+      const frontImg  = this.createDOMElement('img');
+      frontImg.src    = './assets/images/mask1.jpg';
+      frontImg.alt    = 'Hidden card';
+      cardFront.appendChild(frontImg);
+
+      const cardBack      = this.createDOMElement('div');
+      cardBack.className  = 'card-back';
+
+      // Ajouter l'image de la carte au verso de la carte
+      const backImg = this.createDOMElement('img');
+      backImg.src   = image.url;
+      backImg.alt   = image.name;
+      cardBack.appendChild(backImg);
+
+      // Ajouter le recto et le verso ensemble
+      cardInner.appendChild(cardFront);
+      cardInner.appendChild(cardBack);
+
+      // Ajouter l'ensemble cardInner a card et card au gameBoard
+      card.appendChild(cardInner);
+      gameBoard.appendChild(card);
+    });
+  }
+  
+  //// Méthodes génériques ////
+  
   /**
    * Ajoute une classe à un élement du DOM
    * @param {HTMLElement} elt - l'élément du DOM à résoudre
