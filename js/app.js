@@ -5,8 +5,10 @@ import {ApiService} from './ApiService.js';
 const domManager = new DOMManager();
 const game = new Game();
 
+// Créer le formulaire de configuration de la partie
+domManager.createSetupForm();
+
 // Ajouter un écouteur d'événement pour le formulaire de configuration de la partie
-//document.querySelector('.game-form').addEventListener('submit', async function (event) {
 domManager.addSubmitListener('.game-form', async function (event) { 
   event.preventDefault();
   // Récupérer les valeurs des champs de saisie dans le formulaire
@@ -24,9 +26,7 @@ domManager.addSubmitListener('.game-form', async function (event) {
     console.log('[Info] Démarrage de la partie: ' + gameId);
 
     // Cacher le formulaire de configuration pour afficher le platea de la partie
-    //document.querySelector('.setup-form').classList.add('hidden');
     domManager.hideDOMElement('.setup-form');
-    //document.querySelector('.game-area').classList.remove('hidden');
     domManager.showDOMElement('.game-area');
 
   } catch (error) {

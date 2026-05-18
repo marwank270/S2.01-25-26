@@ -72,16 +72,125 @@ export class DOMManager {
    * Créé et affiche le formulaire de configuration de la partie
    */
   createSetupForm() {
+    const setupForm = this.resolveElement('.setup-form');
 
-  }
-  
-  /**
-   * Supprime tous les enfants d'un élément du DOM
-   * @param {HTMLElement} elt - l'élément du DOM à résoudre à clear
-  */
-  clearDOMElement(elt) {
-   const element = this.resolveElement(elt);
-   element.innerHTML = '';
+    // Créer le titre du formulaire
+    const title = this.createDOMElement('h2');
+    this.updateDOMText(title, 'Démarrer une nouvelle partie');
+
+    // Remplir le formulaire de configuration
+    const form = this.resolveElement('.game-form');
+
+    /*
+    <label for="pseudo" hint="(3-20 caractères)">Nom d'utilisateur:</label>
+    <input
+      type="text"
+      id="pseudo"
+      name="pseudo"
+      required
+      minlength="3"
+      maxlength="20"
+    />
+
+    <label for="difficulty">Difficulté:</label>
+    <select id="difficulty" name="difficulty" required>
+      <option value="4">4 paires</option>
+      <option value="5">5 paires</option>
+      <option value="6">6 paires</option>
+      <option value="8">8 paires</option>
+    </select>
+
+    <label for="collection">Collection d'images:</label>
+    <select id="collection" name="collection" required>
+      <option value="animals">Animaux</option>
+      <option value="cars">Voitures</option>
+      <option value="fruits">Fruits</option>
+      <!-- Ajouter d'autres collections -->
+    </select>
+
+    <button type="submit">Démarrer la partie</button> 
+    */
+
+    // Créer le label et l'input pour le pseudo
+    const pseudoLabel = this.createDOMElement('label');
+    pseudoLabel.setAttribute('for', 'pseudo');
+    pseudoLabel.setAttribute('hint', '(3-20 caractères)');
+    this.updateDOMText(pseudoLabel, 'Nom d\'utilisateur:');
+    form.appendChild(pseudoLabel);
+
+    const pseudoInput = this.createDOMElement('input');
+    pseudoInput.type = 'text';
+    pseudoInput.id = 'pseudo';
+    pseudoInput.name = 'pseudo';
+    pseudoInput.required = true;
+    pseudoInput.minlength = 3;
+    pseudoInput.maxlength = 20;
+    form.appendChild(pseudoInput);
+
+    // Créer le label et le select pour la difficulté
+    const difficultyLabel = this.createDOMElement('label');
+    difficultyLabel.setAttribute('for', 'difficulty');
+    this.updateDOMText(difficultyLabel, 'Difficulté:');
+    form.appendChild(difficultyLabel);
+
+    const difficultySelect = this.createDOMElement('select');
+    difficultySelect.id = 'difficulty';
+    difficultySelect.name = 'difficulty';
+    difficultySelect.required = true;
+
+    // Définir les options de difficulté (nombre de paires) et les ajouter au select
+    ['4', '5', '6', '8'].forEach(value => {
+      const option = this.createDOMElement('option');
+      option.value = value;
+      this.updateDOMText(option, `${value} paires`);
+      difficultySelect.appendChild(option);
+    });
+    form.appendChild(difficultySelect);
+
+    // Créer le label et le select pour la collection d'images
+    const collectionLabel = this.createDOMElement('label');
+    collectionLabel.setAttribute('for', 'collection');
+    this.updateDOMText(collectionLabel, 'Collection d\'images:');
+    form.appendChild(collectionLabel);
+
+    const collectionSelect = this.createDOMElement('select');
+    collectionSelect.id = 'collection';
+    collectionSelect.name = 'collection';
+    collectionSelect.required = true;
+
+    // Définir les options de collection d'images et les ajouter au select
+    ['animals', 'cars', 'fruits'].forEach(value => {
+      const option = this.createDOMElement('option');
+      option.value = value;
+      // Capitaliser la première lettre pour l'affichage
+      // Source: https://coreui.io/answers/how-to-capitalize-the-first-letter-of-a-string-in-javascript/
+      this.updateDOMText(option, value.charAt(0).toUpperCase() + value.slice(1)); 
+      collectionSelect.appendChild(option);
+    });
+    form.appendChild(collectionSelect);
+
+    // Div contenant les checkbox et leurs labels
+    const checkBoxContainer = this.createDOMElement('div');
+    checkBoxContainer.className = 'checkbox-container';
+    form.appendChild(checkBoxContainer);
+    
+    // Créer le label et la checkbox pour les effets sonnores
+    const soundEffectsLabel = this.createDOMElement('label');
+    soundEffectsLabel.setAttribute('for', 'sounds');
+    this.updateDOMText(soundEffectsLabel, 'Activer les effets sonores:');
+    checkBoxContainer.appendChild(soundEffectsLabel);
+
+    const soundEffectsCheckbox = this.createDOMElement('input');
+    soundEffectsCheckbox.type = 'checkbox';
+    soundEffectsCheckbox.id = 'sounds';
+    soundEffectsCheckbox.name = 'sounds';
+    checkBoxContainer.appendChild(soundEffectsCheckbox);
+
+    // Créer le bouton de soumission du formulaire
+    const submitButton = this.createDOMElement('button')
+    submitButton.type = 'submit';
+    this.updateDOMText(submitButton, 'Démarrer la partie');
+    form.appendChild(submitButton);
   }
 
   /**
@@ -128,10 +237,19 @@ export class DOMManager {
   }
   
   //// Méthodes génériques ////
+    
+  /**
+   * Supprime tous les enfants d'un élément du DOM
+   * @param {HTMLElement} elt - l'élément du DOM dont les enfants doivent être supprimés
+   */
+  clearDOMElement(elt) {
+   const element = this.resolveElement(elt);
+   element.innerHTML = '';
+  }
   
   /**
    * Ajoute une classe à un élement du DOM
-   * @param {HTMLElement} elt - l'élément du DOM à résoudre
+   * @param {HTMLElement} elt - l'élément du DOM auquel ajouter la classe
    * @param {string} className - le nom de la classe à ajouter
    */
   addDOMClass(elt, className) {
@@ -140,7 +258,7 @@ export class DOMManager {
 
   /**
    * Retire une classe d'un élement du DOM
-   * @param {HTMLElement} elt - l'élément du DOM à résoudre
+   * @param {HTMLElement} elt - l'élément du DOM auquel retirer la classe
    * @param {string} className - le nom de la classe à retirer
    */
   removeDOMClass(elt, className) {
@@ -149,7 +267,7 @@ export class DOMManager {
 
   /**
    * Vérifie si un élement du DOM possède une classe spécifique
-   * @param {HTMLElement} elt - l'élément du DOM à résoudre
+   * @param {HTMLElement} elt - l'élément du DOM
    * @param {string} className - le nom de la classe à vérifier
    * @returns {boolean} true si l'élément possède la classe, sinon false
    */ 
