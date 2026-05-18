@@ -9,9 +9,29 @@
 
 ## Description du projet
 
--- À compléter par l'équipe --
+> Le nom "Memory" est utilisé par Ravensburger pour la première fois en 1959 lors de leur première édition du "Jeu de paire"
+
+### Principe
+
+"Le jeu se compose de paires de cartes portant des illustrations identiques. L'ensemble des cartes est mélangé, puis étalé face contre table. À son tour, chaque joueur retourne deux cartes de son choix. S'il découvre deux cartes identiques, il les ramasse et les conserve, ce qui lui permet de rejouer. Si les cartes ne sont pas identiques, il les retourne faces cachées à leur emplacement de départ.
+
+Le jeu se termine quand toutes les paires de cartes ont été découvertes et ramassées. Le gagnant est le joueur qui possède le plus de paires. " Source : [Wikipedia](https://fr.wikipedia.org/wiki/Jeu_de_paires)
+
+Notre variante proposera un jeu en solitaire : le joueur ne disposera que d'un temps limité pour identifier un ensemble de cartes identiques.
 
 ## Instructions d'usage et de lancement
+
+Pour tester rapidement l'application sans installation, le projet est déployé sur Github Pages : [https://marwank270.github.io/S2.01-25-26/](https://marwank270.github.io/S2.01-25-26/)
+
+Pour lancer le projet localement:
+
+1. Cloner le dépôt GitHub:
+  
+  ```sh
+  git clone https://marwank270.github.io/S2.01-25-26.git
+  ```
+
+1. Ouvrir le fichier `index.html` dans un navigateur web (double-cliquer sur le fichier ou faire un clic droit et sélectionner "Ouvrir avec" > "Votre navigateur préféré").
 
 ## Fonctionnalités implémentées
 
