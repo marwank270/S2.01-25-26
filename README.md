@@ -44,7 +44,7 @@
 
 ## Problèmes rencontrés
 
-1. Problème de CORS lors de l'appel à l'API pour créer une partie.
+1. Problème de CORS lors de l'appel à l'API pour créer une partie: `Blocage d’une requête multiorigine (Cross-Origin Request) : la politique « Same Origin » ne permet pas de consulter la ressource distante située sur file:///[...]/js/app.js. Raison : la requête CORS n’utilise pas HTTP.`
    - [X] **Solution**: *J'ai été stupide de penser que l'erreur venait d'un refus injustifé du serveur alors que le problème était simplement dû à une mauvaise définition des valeurs de la difficulté ("facile" était envoyé comme chaîne au lieu préalablement d'être converti en nombre "4").
    Il n'y avait aucun problème avec le serveur qui refusait logiquement la requête puisque le body ne contenait pas toutes les valeurs attendues.*
    - [ ] Tentative de déploiement de l'application avec un serveur de développement local (Live Server), mais le problème de CORS persiste.
