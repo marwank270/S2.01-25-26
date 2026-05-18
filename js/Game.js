@@ -25,6 +25,7 @@ export class Game {
   #totalPairs = 0;
   #features = {
     sound: false, // Activer les effets sonores par défaut
+    speedrun: false, // Activer le mode "speedrun" avec un minuteur et un classement des tentatives
     // Autres fonctionnalités à ajouter plus tard...
   }
 
@@ -65,9 +66,9 @@ export class Game {
    * Démarre une nouvelle partie.
    * @param {number} id - L'identifiant de la partie.
    * @param {keyof ImagesCollection} collectionName - le nom  de la collection à utiliser.
-   * @note `@param collectionName` "keyof" séléctionne automatiquement les clés (Collection) valides de la collection.
+   * @param {number} difficulty - la difficulté de la partie.
    */
-  startGame(id, collectionName) {
+  startGame(id, collectionName, difficulty) {
     this.#id            = id;
     this.#elapsedTime   = 0;
     this.#flipped       = [];
@@ -86,16 +87,20 @@ export class Game {
     
     // Utiliser la clée correspondante à la collection d'images à créer
     const images = imageCollections[collectionName];
-    console.log('[Info] Création des cartes pour la collection: ' + collectionName);
-    // Dupliquer et mélanger les images pour créer les paires
-    const pairs = [...images, ...images].sort(() => Math.random() - 0.5);
-    this.#totalPairs = images.length;
-    
-    domManager.createCards(pairs);
-    this.addCardListeners();
+    //console.log('difficulty: ', difficulty);
+    // Mélanger les images pour en prendre N en fonction de la difficulté
+    const Nimages = images.sort(() => Math.random() - 0.5).slice(0, difficulty);
 
+    // Dupliquer et mélanger les images pour créer les paires
+    const pairs = [...Nimages, ...Nimages].sort(() => Math.random() - 0.5);
+    this.#totalPairs = Nimages.length;
+    
+    // Créer les cartes
+    domManager.createCards(pairs);
+    
     // Démarrer le chronomètre une fois les cartes affichées
     this.startTimer();
+    this.addCardListeners();
   }
 
   /**

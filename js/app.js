@@ -25,7 +25,7 @@ domManager.addSubmitListener('.game-form', async function (event) {
     domManager.hideDOMElement('.setup-form');
 
     // Démarrer la partie
-    game.startGame(gameId, collectionInput.value);
+    game.startGame(gameId, collectionInput.value, parseInt(difficultyInput.value));
   } catch (error) {
     console.error('[Error]: ', error);
     alert(error.message || '[Error]: Erreur lors de la création de la partie');
