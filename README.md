@@ -48,7 +48,7 @@ Pour lancer le projet localement:
   - Propose une checkbox pour activer ou désactiver le mode speedrun au setup de la partie
 - ~~[ ] "Shuffle mode", un cran de difficulté supplémentaire~~
   - ~~Mélange les cartes à chaque fois qu'une paire trouvée~~
-  - ~~Propose une checkbox pour activer ou désactiver le mode shuffle au setup de la partie~~ 
+  - ~~Propose une checkbox pour activer ou désactiver le mode shuffle au setup de la partie~~  
   *Idée abandonnée car elle rendrai le jeu trop aléatoire et potentiellement frustrant. Surtout, contraire au principe du memory de base.*
 - [ ] "Memory démineur"
   - Propose une paire de carte "bombe" qui fait perdre la partie si la paire est retournée
@@ -61,6 +61,7 @@ Pour lancer le projet localement:
     - [x] Gagner la partie (`./assets/sounds/win.mp3`)
     - [x] Perdre la partie (`./assets/sounds/game-over.mp3`)
   - [x] Propose une checkbox pour activer ou désactiver les effets sonores au setup de la partie (activé par défaut)
+- [x] Easter egg
 
 ## Problèmes rencontrés
 

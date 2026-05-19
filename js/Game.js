@@ -87,7 +87,6 @@ export class Game {
     
     // Utiliser la clée correspondante à la collection d'images à créer
     const images = imageCollections[collectionName];
-    //console.log('difficulty: ', difficulty);
     // Mélanger les images pour en prendre N en fonction de la difficulté
     const Nimages = images.sort(() => Math.random() - 0.5).slice(0, difficulty);
 
@@ -109,7 +108,7 @@ export class Game {
   abandonGame() {
     // Appelle l'arrêt du timer et la fin de partie en cas d'abandon
     this.stopTimer();
-    console.log('[Info] Partie abandonnée: ' + this.#id + ' paires restantes: ' + (this.#totalPairs - this.#matchedPairs) + '/' + this.#totalPairs + ' temps écoulé: ' + this.#elapsedTime);
+    console.log('Partie abandonnée: ' + this.#id + ' paires restantes: ' + (this.#totalPairs - this.#matchedPairs) + '/' + this.#totalPairs + ' temps écoulé: ' + this.#elapsedTime);
     this.endGame();
   }
 
@@ -122,7 +121,7 @@ export class Game {
       // Affichage de les stats
       setTimeout(() => this.showGameStats(), 700);
       this.endGame();
-      console.log('[Info] Partie gagnée: ' + this.#id);
+      console.log('Partie gagnée: ' + this.#id);
     }
   }
 
