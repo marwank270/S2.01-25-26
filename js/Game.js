@@ -36,9 +36,96 @@ export class Game {
   }
 
   /**
+   * Arrête le chronomètre
+   */
+  stopChrono() {
+    clearInterval(this.#chronoId);
+  }
+  
+  /**
+   * Démarre un chronomètre qui s'actualise toutes les 100ms et affiche le temps écoulé sur la page
+   */
+  startChrono() {
+    // @note "setInterval" à utiliser hors prod car unsafe d'après les chad de chez mozzilla
+    // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval
+    this.#chronoId = setInterval(() => {
+      this.#elapsedTime++;
+      // Format du temps écoulé mm:ss:dd
+      const min     = Math.floor(this.#elapsedTime / 600);
+      const sec     = Math.floor((this.#elapsedTime % 600) / 10);
+      const dix     = this.#elapsedTime % 10;
+      const minStr  = min < 10 ? `0${min}` : `${min}`;
+      const secStr  = sec < 10 ? `0${sec}` : `${sec}`;
+      // Update le chronomètre sur la page
+      domManager.updateDOMText('.game-timer', `${minStr}:${secStr}.${dix}`);
+    }, 100);
+  }
+
+  /**
+   * Arrête le timer
+   */
+  stopTimer() {
+    clearInterval(this.#timerId);
+  }
+
+  /**
+   * Démarre le timer et affiche le temps restant sur la page 
+   * @type {number} duration - durée du timer en secondes
+   * @note Appelle directement endGame() à l'expiration du timer
+   */
+  startTimer(duration) {
+    // Stocker la durée du timer pour les stats
+    this.#timerDuration = duration;
+    // Convertir la durée en dixièmes de seconde
+    this.#remainingTime = duration * 10; 
+    this.#timerId = setInterval(() => {
+      this.#remainingTime--;
+
+      // Format du temps restant mm:ss:dd
+      const min = Math.floor(this.#remainingTime / 600);
+      const sec = Math.floor((this.#remainingTime % 600) / 10);
+      const dix = this.#remainingTime % 10;
+      const minStr = min < 10 ? `0${min}` : `${min}`;
+      const secStr = sec < 10 ? `0${sec}` : `${sec}`;
+
+      // Update le timer sur la page
+      domManager.updateDOMText('.game-timer', `${minStr}:${secStr}.${dix}`);
+
+      if (this.#remainingTime <= 0) {
+        clearInterval(this.#timerId);
+        // Gérer la fin de partie en cas d'expiration du timer
+        this.endGame();
+      }    
+    }, 100);    
+  } 
+  
+  /**
+   * Vérifie les conditions de victoire et affiche les stats avant la fin de partie
+   * @returns {boolean} - true si le nombre de paires trouvées corresponds aux nombre de paires totales, false sinon
+   */
+  checkWin() {
+    return this.#matchedPairs === this.#totalPairs;
+  }
+
+  /**
+   * Retourne l'état actuel des fonctionnalités du jeu (effets sonores, mode speedrun, etc.) pour les utiliser dans d'autres méthodes
+   * @returns {Object} - un objet contenant les états des fonctionnalités du jeu
+   */
+  getFeatures() {
+    return this.#features;
+  }
+
+  /**
    * Gère la fin de partie en envoyant les résultats au serveur et en préparant le DOM pour une nouvelle partie
    */
   async endGame() {
+    // Appelle l'arrêt du chronomètre ou timer en fonction du mode de jeu
+    if (this.getFeatures().speedrun) {
+        this.stopTimer();
+    } else {  
+      this.stopChrono();
+    }  
+
     const idARemplacer                      = this.#id;
     const nombreDePairesRestanteARemplacer  = this.#totalPairs - this.#matchedPairs;
 
@@ -49,29 +136,48 @@ export class Game {
     } catch (error) {
       console.error('Error:', error);
       alert(error.message || 'Erreur lors de la fin de la partie');
-    }
+    }  
 
-    // Préparer le DOM pour une nouvelle partie
-    // Attendre 500ms que la carte finisse de se retourner
-    setTimeout(() => {/*fonction vide pour laisser le temps passer*/}, 300);
-
+    // Attendre 300ms que la carte finisse de se retourner
+    setTimeout(() => {
+      // Jouer le son de victoire (déplacé ici pour éviter les problèmes de timing avec un son dupliqué)
+      if (this.getFeatures().sound && this.checkWin()) soundManager.playSound('win');
+      // Jouer le son de défaite
+      else soundManager.playSound('game_over');
+    }, 300);  
+    
     // Afficher les stats de la partie gagnée ou abandonnée dans la popup de fin de partie
-    this.showGameStats();
     this.updateSpeedrunStats(); // Mettre à jour les stats du mode speedrun dans la popup de fin de partie
-    domManager.showDOMElement('.speedrun-stats'); // Afficher les stats de speedrun
-
-    // Afficher le setup-form et cacher la game-area et le bouton d'abandon
+    this.showGameStats();
+    //domManager.showDOMElement('.speedrun-stats'); // Afficher les stats de speedrun
+    
+    // Préparer le DOM pour une nouvelle partie
     //domManager.showDOMElement('.setup-form'); // Déplacé dans showGameStats() pour la consistance
     domManager.hideDOMElement('.game-area');
     domManager.hideDOMElement('#abandon');
-
+    
     // Reset le plateau de jeu en supprimant toutes les précédentes cartes du DOM
     domManager.clearDOMElement('.game-board');
-
+    
+  }  
+  
+  /**
+   * Gère l'abandon de la partie en cours
+   */
+  abandonGame() {
+    // Appelle l'arrêt du chronomètre ou timer et la fin de partie en cas d'abandon
+    if (this.getFeatures().speedrun) {
+      this.stopTimer();
+    } else {
+      this.stopChrono();
+    }
+    // log absolument pas nécessaire et excessivement long mais j'aime bien l'avoir pour vérifier le temps de jeu et les stats au moment de l'abandon
+    console.log('Partie abandonnée: ' + this.#id + ' paires restantes: ' + (this.#totalPairs - this.#matchedPairs) + '/' + this.#totalPairs + (this.getFeatures().speedrun ? ' temps restant: ' + this.#remainingTime / 10 + 's' : ' temps écoulé: ' + this.#elapsedTime));
+    this.endGame();
   }
 
   /**
-   * Démarre une nouvelle partie.
+   * Démarre une nouvelle partie. 
    * @param {number} id - L'identifiant de la partie.
    * @param {keyof ImagesCollection} collectionName - le nom  de la collection à utiliser.
    * @param {number} difficulty - la difficulté de la partie.
@@ -85,13 +191,13 @@ export class Game {
       sound: domManager.resolveElement('#sounds').checked, // Récupérer la valeur de la checkbox pour les effets sonores
       speedrun: domManager.resolveElement('#toggle-speedrun-timer').checked, // Récupérer la valeur de la checkbox pour le mode speedrun
       // Autre fonctionnalités à ajouter plus tard...
-    }
+    }  
 
     // Activer ou désactiver les effets sonores en fonction de la valeur de la checkbox
-    soundManager.toggleSound(this.#features.sound);
+    soundManager.toggleSound(this.getFeatures().sound);
 
     // Activer ou désactiver l'accélération des animations en fonction de la valeur de la checkbox
-    //domManager.toggleClassOnSelector('.card-inner', 'speedrun', this.#features.speedrun);
+    //domManager.toggleClassOnSelector('.card-inner', 'speedrun', this.getFeatures().speedrun);
 
     // Afficher le plateau de jeu et le bouton d'abandon
     domManager.showDOMElement('.game-area');
@@ -106,48 +212,59 @@ export class Game {
     const pairs = [...Nimages, ...Nimages].sort(() => Math.random() - 0.5);
     this.#totalPairs = Nimages.length;
     
-    // Créer les cartes
+    // Créer les cartes dans le DOM
     domManager.createCards(pairs);
     
     // Démarrer le chronomètre ou timer une fois les cartes affichées
-    if (this.#features.speedrun) {
+    if (this.getFeatures().speedrun) {
       this.startTimer(parseInt(domManager.resolveElement('#speedrun-timer').value));
     } else {
       this.startChrono();
-    }
+    }  
 
+    // Ajouter l'écoute des clics sur les cartes pour gérer le retournement et la comparaison
     this.addCardListeners();
   }
 
   /**
-   * Gère l'abandon de la partie en cours
+   * Réinitialise les cartes visibles pour les remettre de dos
    */
-  abandonGame() {
-    // Appelle l'arrêt du chronomètre et la fin de partie en cas d'abandon
-    if (this.#features.speedrun) {
-      this.stopTimer();
-    } else {
-      this.stopChrono();
-    }
-    // log absolument pas nécessaire et excessivement long mais j'aime bien l'avoir pour vérifier le temps de jeu et les stats au moment de l'abandon
-    console.log('Partie abandonnée: ' + this.#id + ' paires restantes: ' + (this.#totalPairs - this.#matchedPairs) + '/' + this.#totalPairs + (this.#features.speedrun ? ' temps restant: ' + this.#remainingTime / 10 + 's' : ' temps écoulé: ' + this.#elapsedTime));
-    this.endGame();
+  resetCards() {
+    this.#flipped.forEach(({ card }) => {
+      domManager.removeDOMClass(card, 'flip');
+    });
+    this.#flipped = [];
   }
 
   /**
-   * Vérifie les conditions de victoire et affiche les stats avant la fin de partie
+   * Compare deux cartes visibles et gère le résultat (matched ou non)
    */
-  checkWin() {
-    if (this.#matchedPairs === this.#totalPairs) {
-      if (this.#features.speedrun) {
-        this.stopTimer();
-      } else {
-        this.stopChrono();
-      }
-      
-      // Partie gagnée
-      this.endGame();
-      console.log('Partie gagnée: ' + this.#id);
+  checkMatch() {
+    const [first, second] = this.#flipped;
+    const firstId         = first.card.dataset.imageId;
+    const secondId        = second.card.dataset.imageId;
+
+    if (firstId === secondId) {
+      // Marquer la paire visible comme trouvée
+      domManager.addDOMClass(first.card, 'matched');
+      domManager.addDOMClass(second.card, 'matched');
+
+      // Jouer le son de correspondance
+      soundManager.playSound('match');
+
+      // Incrémenter le nombre de paires trouvées et reset les cartes retournées
+      this.#matchedPairs++;
+      this.#flipped = [];
+      // Vérifier la victoire
+      if (this.checkWin()) this.endGame();
+    }
+    
+    if (this.getFeatures().speedrun) {
+      // Réduire les temps de regard de 40%
+      setTimeout(() => this.resetCards(), 400);
+    } else {
+      // Recacher les cartes après 1s en mode normal
+      setTimeout(() => this.resetCards(), 1000);
     }
   }
 
@@ -176,6 +293,7 @@ export class Game {
 
   /**
    * Attends l'interaction de l'utilisateur sur les cartes et appelle la fontion de "retournement"
+   * @note Appeller cette méthode à la fin de startGame() pour écouter les clics après avoir créé les cartes et lancé le chronomètre ou timer
    */
   addCardListeners() {
     // Pour tout éléments qui a la classe "card"
@@ -187,60 +305,18 @@ export class Game {
   }
 
   /**
-   * Compare deux cartes visibles et gère le résultat (matched ou non)
-   */
-  checkMatch() {
-    const [first, second] = this.#flipped;
-    const firstId         = first.card.dataset.imageId;
-    const secondId        = second.card.dataset.imageId;
-
-    if (firstId === secondId) {
-      // Marquer la paire visible comme trouvée
-      domManager.addDOMClass(first.card, 'matched');
-      domManager.addDOMClass(second.card, 'matched');
-
-      // Jouer le son de correspondance
-      soundManager.playSound('match');
-
-      // Incrémenter le nombre de paires trouvées et reset les cartes retournées
-      this.#matchedPairs++;
-      this.#flipped = [];
-      // Vérifier la victoire
-      this.checkWin();
-    } else {
-      if (this.#features.speedrun) {
-        // Réduire les temps de regard de 40%
-        setTimeout(() => this.resetCards(), 400);
-      } else {
-        // Recacher les cartes après 1s en mode normal
-        setTimeout(() => this.resetCards(), 1000);
-      }
-    }
-  }
-
-  /**
-   * Réinitialise les cartes retournées pour les remettre de dos
-   */
-  resetCards() {
-    this.#flipped.forEach(({ card }) => {
-      domManager.removeDOMClass(card, 'flip');
-    });
-    this.#flipped = [];
-  }
-
-  /**
-   * handle Speedrun stats: récupère les stats de la partie et les ajoute au tableau de stats du mode speedrun
+   * Gère les statistique de speedrun: update ou créé tableau de stats du mode speedrun
    */
   updateSpeedrunStats() {
     // Pour les stats du mode speedrun, sauvegarder la tentative dans localStorage
     // Grandement aidé par les chads de StackOverflow: https://stackoverflow.com/questions/55067628/json-example-confusing-me-about-json-parse-json-stringify-localstorage-setit
-    if (this.#features.speedrun) {
+    if (this.getFeatures().speedrun) {
       const pseudo = domManager.resolveElement('#pseudo').value.trim();
       const difficulty = domManager.resolveElement('#difficulty').value;
       const time = parseFloat(this.#timerDuration - (this.#remainingTime / 10).toFixed(1)); // temps en dixièmes de seconde arrondi
       console.log('Temps utilisé:' + time + 's' + ' sur un timer de ' + this.#timerDuration);
       const timer = this.#timerDuration; // timer de speedrun en secondes
-      const victory = this.#matchedPairs === this.#totalPairs;
+      const victory = this.checkWin(); // true si victoire, false si défaite ou abandon
 
       // Une sauvegarde par joueur, la créer si elle n'existe pas
       const key = `speedrun_stats_${pseudo}`;
@@ -276,7 +352,7 @@ export class Game {
   showGameStats() {
     let min, sec, dix, minStr, secStr;
 
-    if (this.#features.speedrun) {
+    if (this.getFeatures().speedrun) {
       min = Math.floor(this.#remainingTime / 600);
       sec = Math.floor(this.#remainingTime / 10);
       dix = this.#remainingTime % 10;
@@ -293,95 +369,78 @@ export class Game {
 
     // Rmplacer les valeurs par défaut de la popup par les stats de la partie qui vient de se terminer
     domManager.updateDOMText('#pairs-count', `${this.#matchedPairs}/${this.#totalPairs}`);
-    if (this.#features.speedrun) {
+    if (this.getFeatures().speedrun) 
       domManager.updateDOMText('#time-count', `Temps restant: ${minStr}:${secStr}.${dix}`);
-    } else {
+    else 
       domManager.updateDOMText('#time-count', `Temps écoulé: ${minStr}:${secStr}.${dix}`);
-    }
 
     // Afficher la popup de fin de partie
     domManager.showDOMElement('#win-box');
     
-    if (this.#matchedPairs !== this.#totalPairs) {
-      domManager.updateDOMText('#win-title', 'Vous avez perdu !');
-      // Jouer le son de défaite
-      soundManager.playSound('game_over');
-    } else {
+    if (this.checkWin()) 
       domManager.updateDOMText('#win-title', 'Vous avez gagné !');
-      // Jouer le son de victoire (déplacé après la mise à jour du titre pour éviter les problèmes de timing avec un son dupliqué)
-      soundManager.playSound('win');
-    }
+    else 
+      domManager.updateDOMText('#win-title', 'Vous avez perdu !');
 
     // Cacher la popup au click puis afficher le setup-form pour une nouvelle partie
     domManager.addClickListener('#btn-new-game', () => {
       domManager.hideDOMElement('#win-box');
       domManager.showDOMElement('.setup-form');
+      // Afficher les stats de speedrun après la popup sous le formulaire de setup
+      if (this.getFeatures().speedrun) domManager.showDOMElement('.speedrun-stats');
     });
 
     //this.updateSpeedrunStats();
   }
 
-
   /**
-   * Démarre un chronomètre qui s'actualise toutes les 100ms et affiche le temps écoulé sur la page
+   * Gère la création d'une partie en mode "God" (difficulté maximale) avec un timer de 3 secondes pour le plaisir et la déconne, sans impact sur les stats de speedrun
+   * @param {string} pseudo - le pseudo du joueur pour la partie en mode God
+   * @param {string} collection - la collection d'images à utiliser pour la partie en mode God
+   * @param {number} difficulty - la difficulté de la partie en mode God (fixée à 50 pour être maximale)
    */
-  startChrono() {
-    // @note "setInterval" à utiliser hors prod car unsafe d'après les chad de chez mozzilla
-    // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval
-    this.#chronoId = setInterval(() => {
-      this.#elapsedTime++;
-      // Format du temps écoulé mm:ss:dd
-      const min     = Math.floor(this.#elapsedTime / 600);
-      const sec     = Math.floor((this.#elapsedTime % 600) / 10);
-      const dix     = this.#elapsedTime % 10;
-      const minStr  = min < 10 ? `0${min}` : `${min}`;
-      const secStr  = sec < 10 ? `0${sec}` : `${sec}`;
-      // Update le chronomètre sur la page
-      domManager.updateDOMText('.game-timer', `${minStr}:${secStr}.${dix}`);
-    }, 100);
-  }
+  async startEasterEggGodMode(pseudo, collection, difficulty) {
+    // Easter Egg: God mode si le pseudo est "貝合わせ" (Kai-Awase, un jeu de mémoire japonais traditionnel du XIIe siècle)
+    if (pseudoInput.value.trim() != '貝合わせ') return; // Si le pseudo n'est pas le mot magique, ne rien faire et laisser la création de partie normale se faire
 
-  /**
-   * Arrête le chronomètre
-   */
-  stopChrono() {
-    clearInterval(this.#chronoId);
-  }
+    console.log('[Easter Egg] God Mode secret activé pour ' + pseudoInput.value);
+    // Définir la difficulté sur un nombre abérrant
+    //let e = Array.from(crypto.getRandomValues(new Uint8Array(19)), x => x % 10).join('');
+    const e = '9223372036854774784'; // 2^63 - 1024, valeur maximale (envoyable en js) pour que le serveur récupère le int64 maximal qu'il peut gérer
 
-  /**
-   * Démarre le timer et affiche le temps restant sur la page
-   * @type {number} duration - durée du timer en secondes
-   */
-  startTimer(duration) {
-    // Stocker la durée du timer pour les stats
-    this.#timerDuration = duration;
-    // Convertir la durée en dixièmes de seconde
-    this.#remainingTime = duration * 10; 
-    this.#timerId = setInterval(() => {
-      this.#remainingTime--;
+    const api = new ApiService();
+    try {
+      const gameId = await api.createGame(pseudoInput.value, e);
+      console.log('Partie créée: ' + gameId + ' pour ' + pseudoInput.value + ' difficulté: ' + e);
+      setTimeout(() => {
+        // Démarrer la partie en mode God et attendre 3s
+        game.startGame(gameId, collectionInput.value, parseInt(e));
+      }, 3000);
+      // Envoyer un résultat de partie gagnée
+      const r = api.updateGameResult(gameId, 0);
+      console.log(r);
+    } catch (error) {
+      console.error('[Error]: ', error);
+    }
+    alert('Partie pliée');
+    // Terminer la partie proprement et sans crash quand même
+    if (this.getFeatures().speedrun) {
+      game.stopTimer();
+    } else {
+      game.stopChrono();
+    }
+    
+    setTimeout(() => {}, 300);
 
-      // Format du temps restant mm:ss:dd
-      const min = Math.floor(this.#remainingTime / 600);
-      const sec = Math.floor((this.#remainingTime % 600) / 10);
-      const dix = this.#remainingTime % 10;
-      const minStr = min < 10 ? `0${min}` : `${min}`;
-      const secStr = sec < 10 ? `0${sec}` : `${sec}`;
+    // Afficher les stats de la partie gagnée ou abandonnée dans la popup de fin de partie
+    game.showGameStats();
+    domManager.hideDOMElement('.game-area');
+    domManager.hideDOMElement('#abandon');
 
-      // Update le timer sur la page
-      domManager.updateDOMText('.game-timer', `${minStr}:${secStr}.${dix}`);
-
-      if (this.#remainingTime <= 0) {
-        clearInterval(this.#timerId);
-        // Gérer la fin de partie en cas d'expiration du timer
-        this.endGame();
-      }
-    }, 100);
-  }
-
-  /**
-   * Arrête le timer
-   */
-  stopTimer() {
-    clearInterval(this.#timerId);
+    domManager.clearDOMElement('.game-board');
+    domManager.showDOMElement('.setup-form');
+    domManager.showDOMElement('.speedrun-stats');
+    return; // Recréer le formulaire de configuration pour permettre de rejouer après la partie en mode God
+      
   }
 }
