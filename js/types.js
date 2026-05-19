@@ -11,7 +11,7 @@
 
 /**
  * @typedef {Object} ImagesCollection
- * @property {Collection} animals
+ * @property {Collection} animaux
  * @property {Collection} fruits
- * @property {Collection} cars
+ * @property {Collection} voitures
  */

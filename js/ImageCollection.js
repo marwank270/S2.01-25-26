@@ -3,7 +3,7 @@
  */
 
 export const imageCollections = {
-    animals: [
+    animaux: [
         {id: 1, name: "animal1", url: "./assets/images/animals/animal1.png"},
         {id: 2, name: "animal2", url: "./assets/images/animals/animal2.png"},
         {id: 3, name: "animal3", url: "./assets/images/animals/animal3.png"},
@@ -25,7 +25,7 @@ export const imageCollections = {
         {id: 8, name: "fruit8", url: "./assets/images/fruits/fruit8.png"},
 
     ],
-    cars: [
+    voitures: [
         {id: 1, name: "car1", url: "./assets/images/cars/car1.png"},
         {id: 2, name: "car2", url: "./assets/images/cars/car2.png"},
         {id: 3, name: "car3", url: "./assets/images/cars/car3.png"},
