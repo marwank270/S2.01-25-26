@@ -57,8 +57,8 @@ export class Game {
 
     // Afficher les stats de la partie gagnée ou abandonnée dans la popup de fin de partie
     this.showGameStats();
-    this.handleSpeedrunStats(); // Mettre à jour les stats du mode speedrun dans la popup de fin de partie
-    domManager.showDOMElement('.speedrun-stats'); // Afficher les stats de speedrun pour encourager le joueur à jouer en mode speedrun
+    this.updateSpeedrunStats(); // Mettre à jour les stats du mode speedrun dans la popup de fin de partie
+    domManager.showDOMElement('.speedrun-stats'); // Afficher les stats de speedrun
 
     // Afficher le setup-form et cacher la game-area et le bouton d'abandon
     //domManager.showDOMElement('.setup-form'); // Déplacé dans showGameStats() pour la consistance
@@ -231,7 +231,7 @@ export class Game {
   /**
    * handle Speedrun stats: récupère les stats de la partie et les ajoute au tableau de stats du mode speedrun
    */
-  handleSpeedrunStats() {
+  updateSpeedrunStats() {
     // Pour les stats du mode speedrun, sauvegarder la tentative dans localStorage
     // Grandement aidé par les chads de StackOverflow: https://stackoverflow.com/questions/55067628/json-example-confusing-me-about-json-parse-json-stringify-localstorage-setit
     if (this.#features.speedrun) {
@@ -251,7 +251,7 @@ export class Game {
         date: new Date().toLocaleString('fr-FR'),
         matchedPairs: this.#matchedPairs,
         totalPairs: this.#totalPairs,
-        time: time,
+        time: time.toFixed(1), // temps en secondes arrondi à une décimale
         timer: timer,
         victory: victory
       });
@@ -259,8 +259,14 @@ export class Game {
       // Sauvegarder les stats mises à jour dans le localStorage
       localStorage.setItem(key, JSON.stringify(stats));
 
-      // Appeler la création du tableau de stats
-      domManager.createSpeedrunStatsTable(pseudo, stats);
+      let speedrunHistory = domManager.resolveElement('.speedrun-history');
+      if (!speedrunHistory) {
+        // Créer l'élément du tableau de stats s'il n'existe pas encore
+        speedrunHistory = domManager.createSpeedrunStatsTable(pseudo, stats);
+      }
+      // Appeler la création du tableau de stats et le rendre visible
+      //domManager.createSpeedrunStatsTable(pseudo, stats);
+      //domManager.showDOMElement('.speedrun-stats');
     }
   }
 
@@ -312,7 +318,7 @@ export class Game {
       domManager.showDOMElement('.setup-form');
     });
 
-    //this.handleSpeedrunStats();
+    //this.updateSpeedrunStats();
   }
 
 

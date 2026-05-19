@@ -291,6 +291,7 @@ export class DOMManager {
 
     //const speedrunContainer = this.createDOMElement('div'); Créé dans le HTML pour faciliter affichhage/masquage dans app.js
     const speedrunContainer = this.resolveElement('.speedrun-stats');
+    this.clearDOMElement(speedrunContainer);
 
     const title = this.createDOMElement('h3');
     this.updateDOMText(title, `Historique de speedrun pour ${pseudo}`);
@@ -337,7 +338,7 @@ export class DOMManager {
 
     // Ajouter le tableau au DOM, sous le setup-form
     const setupForm = this.resolveElement('.setup-form');
-    //setupForm.insertAdjacentElement('afterend', speedrunContainer);
+    setupForm.insertAdjacentElement('afterend', speedrunContainer);
   }
   
   //// Méthodes génériques ////
