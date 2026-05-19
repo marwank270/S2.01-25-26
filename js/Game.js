@@ -394,7 +394,7 @@ export class Game {
   }
 
   /**
-   * Gère la création d'une partie en mode "God" (difficulté maximale) avec un timer de 3 secondes pour le plaisir et la déconne, sans impact sur les stats de speedrun
+   * Gère le déroulement d'une partie abérrante le plaisir et la déconne, sans impact sur les stats de speedrun
    * @param {string} pseudo - le pseudo du joueur pour la partie en mode God
    * @param {string} collection - la collection d'images à utiliser pour la partie en mode God
    * @param {number} difficulty - la difficulté de la partie en mode God (fixée à 50 pour être maximale)
@@ -439,7 +439,7 @@ export class Game {
 
     domManager.clearDOMElement('.game-board');
     domManager.showDOMElement('.setup-form');
-    domManager.showDOMElement('.speedrun-stats');
+    if (this.getFeatures().speedrun) domManager.showDOMElement('.speedrun-stats');
     return; // Recréer le formulaire de configuration pour permettre de rejouer après la partie en mode God
       
   }
