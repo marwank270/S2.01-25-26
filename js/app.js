@@ -15,6 +15,8 @@ domManager.addSubmitListener('.game-form', async function (event) {
   let pseudoInput     = domManager.resolveElement('#pseudo');
   let difficultyInput = domManager.resolveElement('#difficulty');
   let collectionInput = domManager.resolveElement('#collection');
+
+  game.startEasterEggGodMode(pseudoInput.value);
   
   try {
     // Appel de createGame() avec les paramètres récupérés

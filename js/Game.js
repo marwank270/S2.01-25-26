@@ -8,6 +8,7 @@ const domManager = new DOMManager();
 // Initialise une instance de SoundManager pour gérer les effets sonores du jeu
 const soundManager = new SoundManager();
 
+
 export class Game {
   /**
    * @type {number} id - identifiant de la partie en cours
@@ -396,28 +397,25 @@ export class Game {
   /**
    * Gère le déroulement d'une partie abérrante le plaisir et la déconne, sans impact sur les stats de speedrun
    * @param {string} pseudo - le pseudo du joueur pour la partie en mode God
-   * @param {string} collection - la collection d'images à utiliser pour la partie en mode God
-   * @param {number} difficulty - la difficulté de la partie en mode God (fixée à 50 pour être maximale)
    */
-  async startEasterEggGodMode(pseudo, collection, difficulty) {
+  async startEasterEggGodMode(pseudo) {
     // Easter Egg: God mode si le pseudo est "貝合わせ" (Kai-Awase, un jeu de mémoire japonais traditionnel du XIIe siècle)
-    if (pseudoInput.value.trim() != '貝合わせ') return; // Si le pseudo n'est pas le mot magique, ne rien faire et laisser la création de partie normale se faire
+    if (pseudo.trim() !== '貝合わせ') return; // Si le pseudo n'est pas le mot magique, ne rien faire et laisser la création de partie normale se faire
 
-    console.log('[Easter Egg] God Mode secret activé pour ' + pseudoInput.value);
+    console.log('[Easter Egg] God Mode secret activé pour ' + pseudo);
     // Définir la difficulté sur un nombre abérrant
     //let e = Array.from(crypto.getRandomValues(new Uint8Array(19)), x => x % 10).join('');
     const e = '9223372036854774784'; // 2^63 - 1024, valeur maximale (envoyable en js) pour que le serveur récupère le int64 maximal qu'il peut gérer
 
-    const api = new ApiService();
     try {
-      const gameId = await api.createGame(pseudoInput.value, e);
-      console.log('Partie créée: ' + gameId + ' pour ' + pseudoInput.value + ' difficulté: ' + e);
+      const gameId = await ApiService.createGame(pseudo, e);
+      console.log('Partie créée: ' + gameId + ' pour ' + pseudo + ' difficulté: ' + e);
       setTimeout(() => {
         // Démarrer la partie en mode God et attendre 3s
-        game.startGame(gameId, collectionInput.value, parseInt(e));
+        this.startGame(gameId, imageCollections[0], parseInt(e));
       }, 3000);
       // Envoyer un résultat de partie gagnée
-      const r = api.updateGameResult(gameId, 0);
+      const r = await ApiService.updateGameResult(gameId, 0);
       console.log(r);
     } catch (error) {
       console.error('[Error]: ', error);
