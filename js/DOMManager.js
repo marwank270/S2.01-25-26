@@ -338,6 +338,7 @@ export class DOMManager {
 
     // Ajouter le tableau au DOM, sous le setup-form
     const setupForm = this.resolveElement('.setup-form');
+    this.hideDOMElement('.speedrun-stats'); // cacher le conteneur du tableau de stats de speedrun pour le moment
     setupForm.insertAdjacentElement('afterend', speedrunContainer);
   }
   
