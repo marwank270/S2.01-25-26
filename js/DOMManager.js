@@ -52,12 +52,13 @@ export class DOMManager {
   }
 
   /**
-   * Update le contenu textuel d'un élément du DOM
+   * Update le contenu textuel d'un élément du DOM possédant la propriété textContent
    * @param {HTMLElement} elt - l'élément du DOM à résoudre à mettre à jour
    * @param {string} text - le texte (variables supportées (en théorie pour le moment)) à insérer dans l'élément duDOM à résoudre
+   * @returns {HTMLElement} l'élément du DOM mis à jour
    */
   updateDOMText(elt, text) {
-    this.resolveElement(elt).textContent = `${text}`;
+    return this.resolveElement(elt).textContent = `${text}`;
   }
 
   /**
@@ -73,6 +74,10 @@ export class DOMManager {
    * Créé et affiche le formulaire de configuration de la partie
    */
   createSetupForm() {
+    const imageCollectionsList = ['animaux', 'voitures', 'fruits'];
+    const difficultyList = ['4', '5', '6', '8'];
+    const speedrunTimerList = ['120', '60', '30', '15', '10']; // en secondes
+    
     const setupForm = this.resolveElement('.setup-form');
 
     // Créer le titre du formulaire
@@ -111,7 +116,7 @@ export class DOMManager {
     difficultySelect.required = true;
 
     // Définir les options de difficulté (nombre de paires) et les ajouter au select
-    ['4', '5', '6', '8'].forEach(value => {
+    difficultyList.forEach(value => {
       const option = this.createDOMElement('option');
       option.value = value;
       this.updateDOMText(option, `${value} paires`);
@@ -131,7 +136,7 @@ export class DOMManager {
     collectionSelect.required = true;
 
     // Définir les options de collection d'images et les ajouter au select
-    ['animals', 'cars', 'fruits'].forEach(value => {
+    imageCollectionsList.forEach(value => {
       const option = this.createDOMElement('option');
       option.value = value;
       // Capitaliser la première lettre pour l'affichage
@@ -158,13 +163,47 @@ export class DOMManager {
     soundEffectsCheckbox.name = 'sounds';
     checkBoxContainer.appendChild(soundEffectsCheckbox);
 
+    // Créer le label pour le timer de speedrun
+    const speedrunTimerLabel = this.createDOMElement('label');
+    speedrunTimerLabel.setAttribute('for', 'speedrun-timer');
+    this.updateDOMText(speedrunTimerLabel, 'Timer de speedrun:');
+    checkBoxContainer.appendChild(speedrunTimerLabel);
+
+    // Créer la checkbox pour activer ou désactiver le timer de speedrun
+     const speedrunTimerCheckbox = this.createDOMElement('input');
+     speedrunTimerCheckbox.type = 'checkbox';
+     speedrunTimerCheckbox.id = 'toggle-speedrun-timer';
+     speedrunTimerCheckbox.name = 'toggle-speedrun-timer';
+     checkBoxContainer.appendChild(speedrunTimerCheckbox);
+     
+    // Créer le select pour le timer de speedrun
+    const speedrunTimerSelect = this.createDOMElement('select');
+    speedrunTimerSelect.id = 'speedrun-timer';
+    speedrunTimerSelect.name = 'speedrun-timer';
+    speedrunTimerSelect.required = false;
+    speedrunTimerSelect.disabled = true; // Désactiver le select par défaut, il sera activé si la checkbox est cochée
+
+    // Ajouter un écouteur pour activer ou désactiver le select du timer de speedrun en fonction de la checkbox
+    speedrunTimerCheckbox.addEventListener('change', function() {
+      speedrunTimerSelect.disabled = !this.checked;
+    }); // @note fonction anonyme: pas bo -> fonction dédiée ?
+
+    // Définir les options pour le timer de speedrun et les ajouter au select
+    speedrunTimerList.forEach(value => {
+      const option = this.createDOMElement('option');
+      option.value = value;
+      this.updateDOMText(option, `${value} secondes`);
+      speedrunTimerSelect.appendChild(option);
+    });
+    checkBoxContainer.appendChild(speedrunTimerSelect);
+
     // Créer le bouton de soumission du formulaire
     const submitButton = this.createDOMElement('button')
     submitButton.type = 'submit';
     this.updateDOMText(submitButton, 'Démarrer la partie');
     form.appendChild(submitButton);
   }
-  
+
   /**
    * Créé les tags audio HTML pour lire les sons 
    */
@@ -229,10 +268,76 @@ export class DOMManager {
       cardInner.appendChild(cardFront);
       cardInner.appendChild(cardBack);
 
+      // Activer ou désactiver l'accélération des animations en fonction de la valeur de la checkbox speedrun
+      cardInner.classList.toggle('speedrun', this.resolveElement('#toggle-speedrun-timer').checked);
+
       // Ajouter l'ensemble cardInner a card et card au gameBoard
       card.appendChild(cardInner);
       gameBoard.appendChild(card);
     });
+  }
+
+  /**
+   * Créé un tableau sous le setup-form pour afficher les temps et difficultés des parties en speedrun du joueur
+   * @type {string} pseudo - le pseudo du speedrunner
+   * @type {Array} speedrunStats - les tentatives du joueur (date, matchedPairs, totalPairs, time, timer, victory)
+   */
+  createSpeedrunStatsTable(pseudo, speedrunStats) {
+    // Cache le tableau précédent s'il existe // Déplacé dans app.js
+    //const existingTable = this.resolveElement('.speedrun-stats');
+    //if (existingTable) this.hideDOMElement(existingTable); // Plut^ot que existingTable.remove();
+
+    if (speedrunStats.length === 0) return; // Ne pas créer de tableau s'il n'y a aucune tentative à afficher
+
+    //const speedrunContainer = this.createDOMElement('div'); Créé dans le HTML pour faciliter affichhage/masquage dans app.js
+    const speedrunContainer = this.resolveElement('.speedrun-stats');
+
+    const title = this.createDOMElement('h3');
+    this.updateDOMText(title, `Historique de speedrun pour ${pseudo}`);
+    speedrunContainer.appendChild(title);
+
+    // Créer le tableau et son en-tête
+    const table = this.createDOMElement('table');
+    const tableHead = this.createDOMElement('thead');
+    const headerRow = this.createDOMElement('tr');
+    
+    const headers = ['Date - heure', 'Paires trouvées / Total de paires', 'Temps / Challenge'];
+    headers.forEach(headerText => {
+      const th = this.createDOMElement('th');
+      this.updateDOMText(th, headerText);
+      headerRow.appendChild(th);
+    });
+    tableHead.appendChild(headerRow);
+    table.appendChild(tableHead);
+
+    console.log('Speedrun stats à afficher:', speedrunStats);
+    console.log(speedrunStats[0].time);
+    console.log(speedrunStats[0].timer);
+
+    // Créer le corps du tableau et remplir les lignes
+    const tableBody = this.createDOMElement('tbody');
+    speedrunStats.forEach(stat => {
+      const row = this.createDOMElement('tr');
+      // Ajouter la classe correspondante à victoire ou défaite pour colorer la ligne en vert ou rouge
+      row.className = stat.victory ? 'victory' : 'defeat';
+      [
+        stat.date,
+        // Factorisation des champs paires trouvées / total de paires et temps / timer de speedrun (compact)
+        `${stat.matchedPairs} / ${stat.totalPairs}`,
+        `${stat.time} / ${stat.timer}s`, // Affichage plus simple du temps et du timer de speedrun (en secondes)
+      ].forEach(text => {
+        const td = this.createDOMElement('td');
+        this.updateDOMText(td, text);
+        row.appendChild(td);
+      });
+      tableBody.appendChild(row);
+    });
+    table.appendChild(tableBody);
+    speedrunContainer.appendChild(table);
+
+    // Ajouter le tableau au DOM, sous le setup-form
+    const setupForm = this.resolveElement('.setup-form');
+    //setupForm.insertAdjacentElement('afterend', speedrunContainer);
   }
   
   //// Méthodes génériques ////

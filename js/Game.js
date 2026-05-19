@@ -11,15 +11,21 @@ const soundManager = new SoundManager();
 export class Game {
   /**
    * @type {number} id - identifiant de la partie en cours
-   * @type {number} timerId - identifiant du timer de la partie en cours (pour pouvoir l'arrêter)
+   * @type {number} chronoId - identifiant du chronomètre de la partie en cours
+   * @type {number} timerId - identifiant du timer de la partie en cours
    * @type {number} elapsedTime - temps écoulé en centièmes de seconde
+   * @type {number} timerDuration - durée du timer en secondes (pour le mode speedrun)
+   * @type {number} remainingTime - temps restant en centièmes de seconde (pour le mode speedrun)
    * @type {Array} flipped - tableau temporaire des 9cartes actuellement retournées
    * @type {number} matchedPairs - nombre de paires trouvées
    * @type {number} totalPairs - nombre total de paires
    */
   #id;
+  #chronoId;
   #timerId;
   #elapsedTime = 0;
+  #timerDuration = 0;
+  #remainingTime = 0;
   #flipped = [];
   #matchedPairs = 0;
   #totalPairs = 0;
@@ -47,10 +53,12 @@ export class Game {
 
     // Préparer le DOM pour une nouvelle partie
     // Attendre 500ms que la carte finisse de se retourner
-    setTimeout(() => {/*fonction vide pour laisser le temps passer*/}, 500);
+    setTimeout(() => {/*fonction vide pour laisser le temps passer*/}, 300);
 
     // Afficher les stats de la partie gagnée ou abandonnée dans la popup de fin de partie
     this.showGameStats();
+    this.handleSpeedrunStats(); // Mettre à jour les stats du mode speedrun dans la popup de fin de partie
+    domManager.showDOMElement('.speedrun-stats'); // Afficher les stats de speedrun pour encourager le joueur à jouer en mode speedrun
 
     // Afficher le setup-form et cacher la game-area et le bouton d'abandon
     //domManager.showDOMElement('.setup-form'); // Déplacé dans showGameStats() pour la consistance
@@ -75,11 +83,15 @@ export class Game {
     this.#matchedPairs  = 0;
     this.#features      = {
       sound: domManager.resolveElement('#sounds').checked, // Récupérer la valeur de la checkbox pour les effets sonores
+      speedrun: domManager.resolveElement('#toggle-speedrun-timer').checked, // Récupérer la valeur de la checkbox pour le mode speedrun
       // Autre fonctionnalités à ajouter plus tard...
     }
 
     // Activer ou désactiver les effets sonores en fonction de la valeur de la checkbox
     soundManager.toggleSound(this.#features.sound);
+
+    // Activer ou désactiver l'accélération des animations en fonction de la valeur de la checkbox
+    //domManager.toggleClassOnSelector('.card-inner', 'speedrun', this.#features.speedrun);
 
     // Afficher le plateau de jeu et le bouton d'abandon
     domManager.showDOMElement('.game-area');
@@ -97,8 +109,13 @@ export class Game {
     // Créer les cartes
     domManager.createCards(pairs);
     
-    // Démarrer le chronomètre une fois les cartes affichées
-    this.startTimer();
+    // Démarrer le chronomètre ou timer une fois les cartes affichées
+    if (this.#features.speedrun) {
+      this.startTimer(parseInt(domManager.resolveElement('#speedrun-timer').value));
+    } else {
+      this.startChrono();
+    }
+
     this.addCardListeners();
   }
 
@@ -106,9 +123,14 @@ export class Game {
    * Gère l'abandon de la partie en cours
    */
   abandonGame() {
-    // Appelle l'arrêt du timer et la fin de partie en cas d'abandon
-    this.stopTimer();
-    console.log('Partie abandonnée: ' + this.#id + ' paires restantes: ' + (this.#totalPairs - this.#matchedPairs) + '/' + this.#totalPairs + ' temps écoulé: ' + this.#elapsedTime);
+    // Appelle l'arrêt du chronomètre et la fin de partie en cas d'abandon
+    if (this.#features.speedrun) {
+      this.stopTimer();
+    } else {
+      this.stopChrono();
+    }
+    // log absolument pas nécessaire et excessivement long mais j'aime bien l'avoir pour vérifier le temps de jeu et les stats au moment de l'abandon
+    console.log('Partie abandonnée: ' + this.#id + ' paires restantes: ' + (this.#totalPairs - this.#matchedPairs) + '/' + this.#totalPairs + (this.#features.speedrun ? ' temps restant: ' + this.#remainingTime / 10 + 's' : ' temps écoulé: ' + this.#elapsedTime));
     this.endGame();
   }
 
@@ -117,9 +139,13 @@ export class Game {
    */
   checkWin() {
     if (this.#matchedPairs === this.#totalPairs) {
-      this.stopTimer();
-      // Affichage de les stats
-      setTimeout(() => this.showGameStats(), 700);
+      if (this.#features.speedrun) {
+        this.stopTimer();
+      } else {
+        this.stopChrono();
+      }
+      
+      // Partie gagnée
       this.endGame();
       console.log('Partie gagnée: ' + this.#id);
     }
@@ -182,8 +208,13 @@ export class Game {
       // Vérifier la victoire
       this.checkWin();
     } else {
-      // Recacher les cartes après 1s 
-      setTimeout(() => this.resetCards(), 1000);
+      if (this.#features.speedrun) {
+        // Réduire les temps de regard de 40%
+        setTimeout(() => this.resetCards(), 400);
+      } else {
+        // Recacher les cartes après 1s en mode normal
+        setTimeout(() => this.resetCards(), 1000);
+      }
     }
   }
 
@@ -197,21 +228,70 @@ export class Game {
     this.#flipped = [];
   }
 
+  /**
+   * handle Speedrun stats: récupère les stats de la partie et les ajoute au tableau de stats du mode speedrun
+   */
+  handleSpeedrunStats() {
+    // Pour les stats du mode speedrun, sauvegarder la tentative dans localStorage
+    // Grandement aidé par les chads de StackOverflow: https://stackoverflow.com/questions/55067628/json-example-confusing-me-about-json-parse-json-stringify-localstorage-setit
+    if (this.#features.speedrun) {
+      const pseudo = domManager.resolveElement('#pseudo').value.trim();
+      const difficulty = domManager.resolveElement('#difficulty').value;
+      const time = parseFloat(this.#timerDuration - (this.#remainingTime / 10).toFixed(1)); // temps en dixièmes de seconde arrondi
+      console.log('Temps utilisé:' + time + 's' + ' sur un timer de ' + this.#timerDuration);
+      const timer = this.#timerDuration; // timer de speedrun en secondes
+      const victory = this.#matchedPairs === this.#totalPairs;
+
+      // Une sauvegarde par joueur, la créer si elle n'existe pas
+      const key = `speedrun_stats_${pseudo}`;
+      const stats = JSON.parse(localStorage.getItem(key)) || [];
+
+      // Ajouter la tentative actuelle aux stats du joueur
+      stats.unshift({
+        date: new Date().toLocaleString('fr-FR'),
+        matchedPairs: this.#matchedPairs,
+        totalPairs: this.#totalPairs,
+        time: time,
+        timer: timer,
+        victory: victory
+      });
+
+      // Sauvegarder les stats mises à jour dans le localStorage
+      localStorage.setItem(key, JSON.stringify(stats));
+
+      // Appeler la création du tableau de stats
+      domManager.createSpeedrunStatsTable(pseudo, stats);
+    }
+  }
 
   /**
-   * Update les stats pour la popup de fin de partie
+   * Update les stats pour la popup de fin de partie, crée le tableau de stats du mode speedrun
    */
   showGameStats() {
-    // Format du temps écoulé mm:ss
-    const min = Math.floor(this.#elapsedTime / 600);
-    const sec = Math.floor((this.#elapsedTime % 600) / 10);
-    const dix = this.#elapsedTime % 10;
-    const minStr = min < 10 ? `0${min}` : `${min}`;
-    const secStr = sec < 10 ? `0${sec}` : `${sec}`;
+    let min, sec, dix, minStr, secStr;
+
+    if (this.#features.speedrun) {
+      min = Math.floor(this.#remainingTime / 600);
+      sec = Math.floor(this.#remainingTime / 10);
+      dix = this.#remainingTime % 10;
+      minStr = min < 10 ? `0${min}` : `${min}`;
+      secStr = sec < 10 ? `0${sec}` : `${sec}`;
+    } else {
+      // Format du temps écoulé mm:ss
+      min = Math.floor(this.#elapsedTime / 600);
+      sec = Math.floor((this.#elapsedTime % 600) / 10);
+      dix = this.#elapsedTime % 10;
+      minStr = min < 10 ? `0${min}` : `${min}`;
+      secStr = sec < 10 ? `0${sec}` : `${sec}`; 
+    }
 
     // Rmplacer les valeurs par défaut de la popup par les stats de la partie qui vient de se terminer
     domManager.updateDOMText('#pairs-count', `${this.#matchedPairs}/${this.#totalPairs}`);
-    domManager.updateDOMText('#time-count', `${minStr}:${secStr}.${dix}`); // Afficher le temps écoulé au format mm:ss.dixièmes
+    if (this.#features.speedrun) {
+      domManager.updateDOMText('#time-count', `Temps restant: ${minStr}:${secStr}.${dix}`);
+    } else {
+      domManager.updateDOMText('#time-count', `Temps écoulé: ${minStr}:${secStr}.${dix}`);
+    }
 
     // Afficher la popup de fin de partie
     domManager.showDOMElement('#win-box');
@@ -231,33 +311,71 @@ export class Game {
       domManager.hideDOMElement('#win-box');
       domManager.showDOMElement('.setup-form');
     });
+
+    //this.handleSpeedrunStats();
   }
 
 
   /**
-   * Démarre un minuteur qui s'actualise toutes les 100ms et affiche le temps écoulé sur la page
+   * Démarre un chronomètre qui s'actualise toutes les 100ms et affiche le temps écoulé sur la page
    */
-  startTimer() {
+  startChrono() {
     // @note "setInterval" à utiliser hors prod car unsafe d'après les chad de chez mozzilla
     // https://developer.mozilla.org/en-US/docs/Web/API/Window/setInterval
-    this.#timerId = setInterval(() => {
+    this.#chronoId = setInterval(() => {
       this.#elapsedTime++;
-      // Format du temps écoulé mm:ss
+      // Format du temps écoulé mm:ss:dd
       const min     = Math.floor(this.#elapsedTime / 600);
       const sec     = Math.floor((this.#elapsedTime % 600) / 10);
       const dix     = this.#elapsedTime % 10;
       const minStr  = min < 10 ? `0${min}` : `${min}`;
       const secStr  = sec < 10 ? `0${sec}` : `${sec}`;
-      // Update le timer sur la page
+      // Update le chronomètre sur la page
       domManager.updateDOMText('.game-timer', `${minStr}:${secStr}.${dix}`);
     }, 100);
   }
 
   /**
-   * Arrête le chonomètre
+   * Arrête le chronomètre
+   */
+  stopChrono() {
+    clearInterval(this.#chronoId);
+  }
+
+  /**
+   * Démarre le timer et affiche le temps restant sur la page
+   * @type {number} duration - durée du timer en secondes
+   */
+  startTimer(duration) {
+    // Stocker la durée du timer pour les stats
+    this.#timerDuration = duration;
+    // Convertir la durée en dixièmes de seconde
+    this.#remainingTime = duration * 10; 
+    this.#timerId = setInterval(() => {
+      this.#remainingTime--;
+
+      // Format du temps restant mm:ss:dd
+      const min = Math.floor(this.#remainingTime / 600);
+      const sec = Math.floor((this.#remainingTime % 600) / 10);
+      const dix = this.#remainingTime % 10;
+      const minStr = min < 10 ? `0${min}` : `${min}`;
+      const secStr = sec < 10 ? `0${sec}` : `${sec}`;
+
+      // Update le timer sur la page
+      domManager.updateDOMText('.game-timer', `${minStr}:${secStr}.${dix}`);
+
+      if (this.#remainingTime <= 0) {
+        clearInterval(this.#timerId);
+        // Gérer la fin de partie en cas d'expiration du timer
+        this.endGame();
+      }
+    }, 100);
+  }
+
+  /**
+   * Arrête le timer
    */
   stopTimer() {
     clearInterval(this.#timerId);
   }
-
 }

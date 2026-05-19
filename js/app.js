@@ -8,6 +8,10 @@ const game = new Game();
 // Créer le formulaire de configuration de la partie
 domManager.createSetupForm();
 
+// Afficher les statistiques de speedrun du joueur sous le formulaire si elles existent
+const speedrunStats = domManager.resolveElement('.speedrun-stats');
+//if (speedrunStats) domManager.showDOMElement(speedrunStats);
+
 // Ajouter un écouteur d'événement pour le formulaire de configuration de la partie
 domManager.addSubmitListener('.game-form', async function (event) { 
   event.preventDefault();
@@ -46,8 +50,9 @@ domManager.addSubmitListener('.game-form', async function (event) {
     let gameId = await ApiService.createGame(pseudoInput.value, difficultyInput.value);
     console.log('Partie créée: ' + gameId + ' pour ' + pseudoInput.value + ' difficulté: ' + difficultyInput.value + ' collection: ' + collectionInput.value);
     
-    // Cacher le formulaire de configuration pour afficher le plateau de la partie
+    // Cacher le formulaire de configuration et les stats de speedrun pour afficher le plateau de la partie
     domManager.hideDOMElement('.setup-form');
+    if (speedrunStats) domManager.hideDOMElement('.speedrun-stats');
 
     // Démarrer la partie
     game.startGame(gameId, collectionInput.value, parseInt(difficultyInput.value));

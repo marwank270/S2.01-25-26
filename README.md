@@ -40,12 +40,11 @@ Pour lancer le projet localement:
   - Affiche un message de victoire si toutes les paires sont trouvés ou un message de défaite sinon
   - Propose un bouton pour recommencer une nouvelle partie
 - [ ] "Speedrun mode", pour les joueurs qui veulent se challenger
-  - Réduit le temps de toutes les animations et délais à 20% de leur durée normale
-  - Propose menu déroulant différents minuteurs à battre (ex: 3mn, 2mn, 1mn, 30s, 15s)
-    - Affiche un message de victoire si le temps est battu ou un message de défaite si le temps est imparti es atteint
-    - Enregistre le meilleur temps du joueur dans le localStorage
-    - Permet de débloquer et d'afficher fièrement un badge de "speedrunner" si le temps de 30s est battu
-  - Propose une checkbox pour activer ou désactiver le mode speedrun au setup de la partie
+  - [x] Réduit le temps de toutes les animations et délais ~~à 20% de leur durée normale~~
+  - [x] Propose menu déroulant différents minuteurs à battre (ex: ~~3mn~~, 2mn, 1mn, 30s, 15s, 10s)
+    - [x] Enregistre les temps et difficultés du joueur pour les parties en speedrun et les affiche sous le `setup-form`
+    - Permet de débloquer et d'afficher fièrement un badge de "speedrunner" si le temps de 30s est battu en difficulté 8
+  - [x] Propose une checkbox pour activer ou désactiver le mode speedrun au setup de la partie
 - ~~[ ] "Shuffle mode", un cran de difficulté supplémentaire~~
   - ~~Mélange les cartes à chaque fois qu'une paire trouvée~~
   - ~~Propose une checkbox pour activer ou désactiver le mode shuffle au setup de la partie~~  

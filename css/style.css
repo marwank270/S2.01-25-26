@@ -130,7 +130,7 @@ header h1 {
   display: flex;
   width: auto;
   justify-content: space-between;
-  vertical-align: top;
+  align-items: baseline;
   gap: 0.5rem;
 }
 
@@ -265,6 +265,11 @@ header h1 {
   transform-style: preserve-3d;
 }
 
+/* Acclération des animations de retournement pour le mode speedrun*/
+.card-inner.speedrun {
+  transition: transform 0.12s;
+}
+
 .card.flip .card-inner {
   transform: rotateY(180deg);
 }
@@ -349,6 +354,56 @@ header h1 {
 
 .win-content button:hover {
   background-color: var(--color-btn-primary-hover);
+}
+
+/* ── Speedrun stats table ── */
+.speedrun-stats {
+  width: 100%;
+  max-width: 56rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem 2rem;
+  background-color: var(--color-bg-panel);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.speedrun-stats h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  margin-bottom: 1rem;
+}
+
+.speedrun-stats table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.speedrun-stats th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-text-label);
+  border-bottom: 1px solid var(--color-border-input);
+  font-weight: 500;
+}
+
+.speedrun-stats td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: monospace;
+  color: var(--color-text-label);
+}
+
+.speedrun-stats tr.victory td  {
+  color: oklch(0.75 0.15 145);
+}
+.speedrun-stats tr.defeat td {
+  color: oklch(0.7 0.18 25);
+}
+
+.speedrun-stats tr:last-child td {
+  border-bottom: none;
 }
 
 /* ── Footer ── */ /** <-- c'est des ALT+196 allez pas me dire que c'est de l'IA */
