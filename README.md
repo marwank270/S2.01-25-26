@@ -45,6 +45,7 @@ Pour lancer le projet localement:
     - [x] Enregistre les temps et difficultés du joueur pour les parties en speedrun et les affiche sous le `setup-form`
     - Permet de débloquer et d'afficher fièrement un badge de "speedrunner" si le temps de 30s est battu en difficulté 8
   - [x] Propose une checkbox pour activer ou désactiver le mode speedrun au setup de la partie
+  - [ ] Propose un bouton pour afficher l'historique de speedruns de tous les utilisateurs
 - ~~[ ] "Shuffle mode", un cran de difficulté supplémentaire~~
   - ~~Mélange les cartes à chaque fois qu'une paire trouvée~~
   - ~~Propose une checkbox pour activer ou désactiver le mode shuffle au setup de la partie~~  
