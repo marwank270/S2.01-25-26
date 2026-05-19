@@ -46,6 +46,7 @@ Pour lancer le projet localement:
     - Permet de débloquer et d'afficher fièrement un badge de "speedrunner" si le temps de 30s est battu en difficulté 8
   - [x] Propose une checkbox pour activer ou désactiver le mode speedrun au setup de la partie
   - [ ] Propose un bouton pour afficher l'historique de speedruns de tous les utilisateurs
+  - [ ] Utiliser des barres d'affichage en pourcentage au lieu de / dans le tableau
 - ~~[ ] "Shuffle mode", un cran de difficulté supplémentaire~~
   - ~~Mélange les cartes à chaque fois qu'une paire trouvée~~
   - ~~Propose une checkbox pour activer ou désactiver le mode shuffle au setup de la partie~~  
@@ -54,6 +55,7 @@ Pour lancer le projet localement:
   - Propose une paire de carte "bombe" qui fait perdre la partie si la paire est retournée
   - Propose une checkbox pour activer ou désactiver le mode démineur au setup de la partie
   - Affiche une animation de bombe qui explose si la paire de carte "bombe" est retournée
+  - Joue un léger "hint sound" pour ne pas laisser l'aléa faire perdre la partie au joueur
 - [x] "Effets sonores" pour agrémenter l'expérience de jeu
   - Ajoute des effets sonores pour les actions suivantes :
     - [x] Retourner une carte (`./assets/sounds/flip.mp3`)
