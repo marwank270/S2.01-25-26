@@ -41,12 +41,13 @@ Pour lancer le projet localement:
   - Propose un bouton pour recommencer une nouvelle partie
 - [ ] "Speedrun mode", pour les joueurs qui veulent se challenger
   - [x] Réduit le temps de toutes les animations et délais ~~à 20% de leur durée normale~~
+  - [x] Propose une checkbox pour activer ou désactiver le mode speedrun au setup de la partie
+  - [ ] Utiliser des barres d'affichage en pourcentage au lieu de / dans le tableau
   - [x] Propose menu déroulant différents minuteurs à battre (ex: ~~3mn~~, 2mn, 1mn, 30s, 15s, 10s)
     - [x] Enregistre les temps et difficultés du joueur pour les parties en speedrun et les affiche sous le `setup-form`
-    - Permet de débloquer et d'afficher fièrement un badge de "speedrunner" si le temps de 30s est battu en difficulté 8
-  - [x] Propose une checkbox pour activer ou désactiver le mode speedrun au setup de la partie
-  - [ ] Propose un bouton pour afficher l'historique de speedruns de tous les utilisateurs
-  - [ ] Utiliser des barres d'affichage en pourcentage au lieu de / dans le tableau
+    - [ ] Permet de débloquer et d'afficher fièrement un badge de "speedrunner" si le temps de 30s est battu en difficulté 8
+  - [ ] ~~Propose un bouton pour afficher l'historique de speedruns de tous les utilisateurs~~  
+    *Affichage automatique disponible à partir du moment ou le joueur à effectué une une tentative en mode speedrun*
 - ~~[ ] "Shuffle mode", un cran de difficulté supplémentaire~~
   - ~~Mélange les cartes à chaque fois qu'une paire trouvée~~
   - ~~Propose une checkbox pour activer ou désactiver le mode shuffle au setup de la partie~~  
@@ -58,11 +59,12 @@ Pour lancer le projet localement:
   - Joue un léger "hint sound" pour ne pas laisser l'aléa faire perdre la partie au joueur
 - [x] "Effets sonores" pour agrémenter l'expérience de jeu
   - Ajoute des effets sonores pour les actions suivantes :
+  - [x] Propose une checkbox pour activer ou désactiver les effets sonores au setup de la partie (activé par défaut)
     - [x] Retourner une carte (`./assets/sounds/flip.mp3`)
     - [x] Trouver une paire (`./assets/sounds/match.mp3`)
     - [x] Gagner la partie (`./assets/sounds/win.mp3`)
     - [x] Perdre la partie (`./assets/sounds/game-over.mp3`)
-  - [x] Propose une checkbox pour activer ou désactiver les effets sonores au setup de la partie (activé par défaut)
+    - [ ] Survol d'une carte piégée (après implémentation du mode démineur)
 - [x] Easter egg
 
 ## Problèmes rencontrés
