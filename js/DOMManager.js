@@ -283,11 +283,8 @@ export class DOMManager {
    * @type {Array} speedrunStats - les tentatives du joueur (date, matchedPairs, totalPairs, time, timer, victory)
    */
   createSpeedrunStatsTable(pseudo, speedrunStats) {
-    // Cache le tableau précédent s'il existe // Déplacé dans app.js
-    //const existingTable = this.resolveElement('.speedrun-stats');
-    //if (existingTable) this.hideDOMElement(existingTable); // Plut^ot que existingTable.remove();
-
-    if (speedrunStats.length === 0) return; // Ne pas créer de tableau s'il n'y a aucune tentative à afficher
+    // Créer le tableau uniquement lorsqu'une tentive existe pour le joueur
+    if (speedrunStats.length === 0) return;
 
     //const speedrunContainer = this.createDOMElement('div'); Créé dans le HTML pour faciliter affichhage/masquage dans app.js
     const speedrunContainer = this.resolveElement('.speedrun-stats');
@@ -303,6 +300,9 @@ export class DOMManager {
     const headerRow = this.createDOMElement('tr');
     
     const headers = ['Date - heure', 'Paires trouvées / Total de paires', 'Temps / Challenge'];
+    // Ajouter les gameID après les dates et les scores à la fin de chaque ligne
+    // Construire une barre de progression HTML remplie en % de réussite par rapport au nombre total de paire à trouver (ex: 3/6 paires trouvées = 50% de remplissage de la barre de progression)
+    // Rendre la couleur dynammique ? (ex: rouge pour 0-25%, orange pour 25-50%, jaune pour 50-75% et vert pour 75-100% de remplissage de la barre de progression)
     headers.forEach(headerText => {
       const th = this.createDOMElement('th');
       this.updateDOMText(th, headerText);

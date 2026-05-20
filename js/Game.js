@@ -328,7 +328,8 @@ export class Game {
         date: new Date().toLocaleString('fr-FR'),
         matchedPairs: this.#matchedPairs,
         totalPairs: this.#totalPairs,
-        time: time.toFixed(1), // temps en secondes arrondi à une décimale
+        time: time.toFixed(1), // temps en secondes arrondi à une décimale (ne fonctionne parfois pas ?) ex:
+        // 12.2 en console mais [{"date":"19/05/2026 19:19:28","matchedPairs":6,"totalPairs":6,"time":12.299999999999997,"timer":60,"victory":true}] en localStorage
         timer: timer,
         victory: victory
       });
