@@ -35,6 +35,28 @@ domManager.addSubmitListener('.game-form', async function (event) {
   }
 });
 
+// Ajouter un écouteur de clics pour afficher / cacher les stats de speedrun disponible
+const showStatsButton = domManager.resolveElement('#show-stats-btn');
+const speedrunStatsContainer = domManager.resolveElement('.speedrun-stats');
+
+showStatsButton.addEventListener('click', async function(event) {
+  event.preventDefault();
+  let pseudoInput = domManager.resolveElement('#pseudo');
+  if (!pseudoInput) return;
+
+  //console.log('click stats');
+  //pseudoInput.required = true; // Rendre le champ pseudo requis pour afficher les stats de speedrun
+  if (pseudoInput.value.trim().length === 0 || pseudoInput.value.trim().length < 3 || pseudoInput.value.trim().length > 20) {
+    alert('Veuillez entrer un pseudo valide (3-20 caractères) pour afficher les stats de speedrun.');
+    return;
+  }
+
+  // Afficher ou cacher les stats de speedrun du pseudo entré dans le champ de formulaire
+  await domManager.toggleSpeedrunStatsTable(pseudoInput.value); 
+  
+  //console.log('state stats:', domManager.hasDOMClass(speedrunStatsContainer, 'hidden') ? 'caché' : 'visible');
+});
+
 // Ajouter un écouteur d'événement pour le bouton d'abandon
 domManager.addClickListener('#abandon', () => {
   game.abandonGame();

@@ -46,7 +46,7 @@ Pour lancer le projet localement:
   - [x] Propose menu déroulant différents minuteurs à battre (ex: ~~3mn~~, 2mn, 1mn, 30s, 15s, 10s)
     - [x] Enregistre les temps et difficultés du joueur pour les parties en speedrun et les affiche sous le `setup-form`
     - [ ] Permet de débloquer et d'afficher fièrement un badge de "speedrunner" si le temps de 30s est battu en difficulté 8
-  - [ ] ~~Propose un bouton pour afficher l'historique de speedruns de tous les utilisateurs~~  
+  - [x] Propose un bouton pour afficher l'historique de speedruns (en fonction du nom d'utilisateur saisi) ~~de tous les utilisateurs~~  
     *Affichage automatique disponible à partir du moment ou le joueur à effectué une une tentative en mode speedrun*
 - ~~[ ] "Shuffle mode", un cran de difficulté supplémentaire~~
   - ~~Mélange les cartes à chaque fois qu'une paire trouvée~~

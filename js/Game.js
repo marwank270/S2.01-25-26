@@ -321,7 +321,8 @@ export class Game {
 
       // Une sauvegarde par joueur, la créer si elle n'existe pas
       const key = `speedrun_stats_${pseudo}`;
-      const stats = JSON.parse(localStorage.getItem(key)) || [];
+      //const stats = JSON.parse(localStorage.getItem(key)) || [];
+      const stats = domManager.getLS(key);
 
       // Ajouter la tentative actuelle aux stats du joueur
       stats.unshift({
@@ -335,9 +336,10 @@ export class Game {
       });
 
       // Sauvegarder les stats mises à jour dans le localStorage
-      localStorage.setItem(key, JSON.stringify(stats));
+      //localStorage.setItem(key, JSON.stringify(stats));
+      domManager.setLS(key, stats);
 
-      let speedrunHistory = domManager.resolveElement('.speedrun-history');
+      let speedrunHistory = domManager.resolveElement('.speedrun-stats');
       if (!speedrunHistory) {
         // Créer l'élément du tableau de stats s'il n'existe pas encore
         speedrunHistory = domManager.createSpeedrunStatsTable(pseudo, stats);

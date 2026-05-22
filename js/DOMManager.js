@@ -202,6 +202,15 @@ export class DOMManager {
     submitButton.type = 'submit';
     this.updateDOMText(submitButton, 'Démarrer la partie');
     form.appendChild(submitButton);
+
+    // Ajouter un bouton pour afficher les stats de speedrun disponible
+    const showStatsButton = this.createDOMElement('button');
+    showStatsButton.type = 'button';
+    showStatsButton.id = 'show-stats-btn';
+    //showStatsButton.disabled = true; // Désactiver sans pseudo entré
+    this.updateDOMText(showStatsButton, 'Afficher les stats de speedrun');
+    form.appendChild(showStatsButton);
+
   }
 
   /**
@@ -311,9 +320,7 @@ export class DOMManager {
     tableHead.appendChild(headerRow);
     table.appendChild(tableHead);
 
-    console.log('Speedrun stats à afficher:', speedrunStats);
-    console.log(speedrunStats[0].time);
-    console.log(speedrunStats[0].timer);
+    //console.log('Speedrun stats à afficher:', speedrunStats);
 
     // Créer le corps du tableau et remplir les lignes
     const tableBody = this.createDOMElement('tbody');
@@ -340,6 +347,45 @@ export class DOMManager {
     const setupForm = this.resolveElement('.setup-form');
     this.hideDOMElement('.speedrun-stats'); // cacher le conteneur du tableau de stats de speedrun pour le moment
     setupForm.insertAdjacentElement('afterend', speedrunContainer);
+  }
+
+  /**
+   * Affiche ou cache le tableau des stats de speedrun du joueur en fonction de sa visibilité actuelle
+   * @type {string} pseudo - le pseudo du joueur dont les stats de speedrun doivent être affichées ou cachées
+   */
+  toggleSpeedrunStatsTable(pseudo) {
+    const speedrunStatsContainer = this.resolveElement('.speedrun-stats');
+    let visible = this.hasDOMClass(speedrunStatsContainer, 'hidden') === false
+    if (!speedrunStatsContainer) {
+      console.error('Conteneur des stats de speedrun introuvable dans le DOM');
+    }
+
+    //console.log('toggleSpeedrunStatsTable - visible:', visible);
+    if (visible) {
+      this.clearDOMElement(speedrunStatsContainer); // Vider le conteneur du tableau de stats de speedrun avant de le cacher le conteneur
+      this.hideDOMElement(speedrunStatsContainer);
+      return;
+    }
+
+    // Récupérer les stats de speedrun du joueur à chaque affichage
+    const stats = this.getLS(`speedrun_stats_${pseudo}`); 
+
+    if (stats.length === 0) {
+      console.log(`Aucune tentative de speedrun trouvée pour ${pseudo}`);
+      let title = this.createDOMElement('h3');
+      this.updateDOMText(title, 'Aucune tentative de speedrun trouvée pour ' + pseudo);
+      speedrunStatsContainer.appendChild(title);
+      this.showDOMElement(speedrunStatsContainer);
+      return;
+    }
+
+    // Mettre à jour le tableau de stats de speedrun avec les données réelles du joueur à chaque affichage
+    this.createSpeedrunStatsTable(pseudo, stats);
+    
+    // @todo faire de "speedrun_stats_$" une variable globale accessible
+    // Changer l'état du tableau de stats 
+    //this.clearDOMElement(speedrunStatsContainer); // Vider le conteneur du tableau de stats de speedrun avant de le cacher le conteneur
+    this.showDOMElement(speedrunStatsContainer);
   }
   
   //// Méthodes génériques ////
@@ -381,4 +427,21 @@ export class DOMManager {
     return this.resolveElement(elt).classList.contains(className);
   }
 
+  /**
+   * Récupère une valeur dans le localStorage à partir d'une clé donnée
+   * @param {string} key - la clé pour récupérer la valeur dans le localStorage
+   * @returns {Array | string} valeur parsée en string JSON depuis le localStorage ou un tableau vide si la clé n'existe pas
+   */
+  getLS(key) {
+    return JSON.parse(localStorage.getItem(key)) || []
+  }
+
+  /**
+   * Enregistre une valeur dans le localStorage à partir d'une clé donnée
+   * @param {string} key - la clé pour enregistrer la valeur dans le localStorage
+   * @param {Array | Object | string} value - la valeur à enregistrer, qui sera parsée en string JSON avant d'être stockée
+   */
+  setLS(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
 }

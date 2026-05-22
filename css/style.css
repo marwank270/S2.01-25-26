@@ -110,7 +110,7 @@ header h1 {
   box-shadow: 0 0 0 2px var(--color-border-input);
 }
 
-.game-form button[type="submit"] {
+.game-form button[type="submit"], #show-stats-btn {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -365,6 +365,7 @@ header h1 {
   background-color: var(--color-bg-panel);
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  align-items:baseline;
 }
 
 .speedrun-stats h3 {
